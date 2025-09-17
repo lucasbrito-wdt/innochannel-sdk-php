@@ -455,7 +455,6 @@ class PropertyServiceTest extends TestCase
     public function testCreateRatePlanSuccess(): void
     {
         $ratePlanData = [
-            'roomId' => 'room-123',
             'name' => 'Standard Rate',
             'description' => 'Standard rate plan',
             'baseRate' => 150.00,
@@ -494,7 +493,6 @@ class PropertyServiceTest extends TestCase
     public function testCreateRatePlanValidationFailure(): void
     {
         $invalidRatePlanData = [
-            'roomId' => '',
             'name' => '', // Empty name should trigger validation
             'description' => 'Test',
             'baseRate' => -10, // Preço negativo

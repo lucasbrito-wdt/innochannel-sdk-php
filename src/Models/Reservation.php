@@ -28,32 +28,52 @@ class Reservation implements JsonSerializable
 {
     use HasEvents;
     private ?string $id = null;
-    private ?string $propertyId = null;
-    private ?string $roomId = null;
-    private ?string $ratePlanId = null;
-    private ?string $bookingReference = null;
-    private ?string $pmsReservationId = null;
+    private ?int $propertyId = null;
+    private ?int $propertyOtaConnectionId = null;
+    private ?string $otaName = null;
     private ?string $otaReservationId = null;
-    private ?string $channelCode = null;
-    private ?DateTimeInterface $checkIn = null;
-    private ?DateTimeInterface $checkOut = null;
+    private ?string $otaConfirmationCode = null;
+    private string $status = 'new';
+    private ?string $paymentStatus = null;
+    private ?string $guestName = null;
+    private ?string $guestEmail = null;
+    private ?string $guestPhone = null;
+    private ?string $guestAddress = null;
+    private ?string $guestCountry = null;
+    private ?array $specialRequests = null;
+    private ?DateTimeInterface $checkInDate = null;
+    private ?DateTimeInterface $checkOutDate = null;
+    private ?string $checkInTime = null;
+    private ?string $checkOutTime = null;
+    private int $nights = 0;
     private int $adults = 1;
     private int $children = 0;
-    private int $nights = 0;
-    private ?array $guest = null;
-    private ?array $additionalGuests = null;
-    private string $status = 'pending';
+    private int $infants = 0;
+    private ?string $otaRoomId = null;
+    private ?string $otaRatePlanId = null;
+    private ?string $roomName = null;
+    private int $roomQuantity = 1;
     private ?float $totalAmount = null;
+    private ?float $roomRate = null;
+    private ?float $taxes = null;
+    private ?float $fees = null;
+    private ?float $commissionAmount = null;
+    private ?float $commissionPercentage = null;
     private ?string $currency = null;
-    private ?array $breakdown = null;
-    private ?array $services = null;
-    private ?array $specialRequests = null;
-    private ?array $policies = null;
-    private ?array $paymentInfo = null;
+    private bool $acknowledgedToOta = false;
+    private ?DateTimeInterface $acknowledgedAt = null;
+    private bool $syncedToPms = false;
+    private ?DateTimeInterface $syncedToPmsAt = null;
+    private ?string $pmsReservationId = null;
+    private ?array $pmsResponse = null;
+    private ?array $rawData = null;
+    private ?array $extras = null;
+    private ?DateTimeInterface $bookingDate = null;
+    private ?DateTimeInterface $modificationDate = null;
+    private ?DateTimeInterface $cancellationDate = null;
+    private ?string $cancellationReason = null;
     private ?DateTimeInterface $createdAt = null;
     private ?DateTimeInterface $updatedAt = null;
-    private ?DateTimeInterface $cancelledAt = null;
-    private ?string $cancellationReason = null;
     private array $originalData = [];
 
     /**
@@ -93,73 +113,87 @@ class Reservation implements JsonSerializable
         $originalData = $this->toArray();
 
         $this->id = $data['id'] ?? null;
-        $this->propertyId = isset($data['propertyId']) ? $data['propertyId'] : (isset($data['property_id']) ? $data['property_id'] : null);
-        $this->roomId = isset($data['roomId']) ? $data['roomId'] : (isset($data['room_id']) ? $data['room_id'] : null);
-        $this->ratePlanId = $data['ratePlanId'] ?? $data['rate_plan_id'] ?? null;
-        $this->bookingReference = $data['booking_reference'] ?? null;
-        $this->pmsReservationId = $data['pms_booking_id'] ?? null;
-        $this->otaReservationId = $data['ota_booking_id'] ?? null;
-        $this->channelCode = $data['channel_code'] ?? null;
-        $this->adults = $data['adults'] ?? 1;
-        $this->children = $data['children'] ?? 0;
-        $this->nights = $data['nights'] ?? 0;
-
-        // Handle guest data - support both formats
-        if (isset($data['guestName']) || isset($data['guest_name'])) {
-            $guestName = $data['guestName'] ?? $data['guest_name'];
-            $nameParts = explode(' ', trim($guestName), 2);
-            $this->guest = [
-                'first_name' => $nameParts[0] ?? '',
-                'last_name' => $nameParts[1] ?? '',
-                'email' => $data['guestEmail'] ?? $data['guest_email'] ?? null,
-                'phone' => $data['guestPhone'] ?? $data['guest_phone'] ?? null
-            ];
-        } else {
-            $this->guest = $data['guest'] ?? null;
-        }
-
-        $this->additionalGuests = $data['additional_guests'] ?? null;
-        $this->status = $data['status'] ?? 'pending';
-        $this->totalAmount = $data['totalAmount'] ?? $data['total_amount'] ?? null;
-        $this->currency = $data['currency'] ?? null;
-        $this->breakdown = $data['breakdown'] ?? null;
-        $this->services = $data['services'] ?? null;
-
+        $this->propertyId = $data['property_id'] ?? null;
+        $this->propertyOtaConnectionId = $data['property_ota_connection_id'] ?? null;
+        $this->otaName = $data['ota_name'] ?? null;
+        $this->otaReservationId = $data['ota_reservation_id'] ?? null;
+        $this->otaConfirmationCode = $data['ota_confirmation_code'] ?? null;
+        $this->status = $data['status'] ?? 'new';
+        $this->paymentStatus = $data['payment_status'] ?? null;
+        $this->guestName = $data['guest_name'] ?? null;
+        $this->guestEmail = $data['guest_email'] ?? null;
+        $this->guestPhone = $data['guest_phone'] ?? null;
+        $this->guestAddress = $data['guest_address'] ?? null;
+        $this->guestCountry = $data['guest_country'] ?? null;
+        
         // Handle special requests - convert string to array if needed
-        $specialRequests = $data['specialRequests'] ?? $data['special_requests'] ?? null;
+        $specialRequests = $data['special_requests'] ?? null;
         if (is_string($specialRequests)) {
             $this->specialRequests = [$specialRequests];
         } else {
             $this->specialRequests = $specialRequests;
         }
 
-        $this->policies = $data['policies'] ?? null;
-        $this->paymentInfo = $data['payment_info'] ?? null;
+        $this->checkInTime = $data['check_in_time'] ?? null;
+        $this->checkOutTime = $data['check_out_time'] ?? null;
+        $this->nights = $data['nights'] ?? 0;
+        $this->adults = $data['adults'] ?? 1;
+        $this->children = $data['children'] ?? 0;
+        $this->infants = $data['infants'] ?? 0;
+        $this->otaRoomId = $data['ota_room_id'] ?? null;
+        $this->otaRatePlanId = $data['ota_rate_plan_id'] ?? null;
+        $this->roomName = $data['room_name'] ?? null;
+        $this->roomQuantity = $data['room_quantity'] ?? 1;
+        $this->totalAmount = $data['total_amount'] ?? null;
+        $this->roomRate = $data['room_rate'] ?? null;
+        $this->taxes = $data['taxes'] ?? null;
+        $this->fees = $data['fees'] ?? null;
+        $this->commissionAmount = $data['commission_amount'] ?? null;
+        $this->commissionPercentage = $data['commission_percentage'] ?? null;
+        $this->currency = $data['currency'] ?? null;
+        $this->acknowledgedToOta = $data['acknowledged_to_ota'] ?? false;
+        $this->syncedToPms = $data['synced_to_pms'] ?? false;
+        $this->pmsReservationId = $data['pms_reservation_id'] ?? null;
+        $this->pmsResponse = $data['pms_response'] ?? null;
+        $this->rawData = $data['raw_data'] ?? null;
+        $this->extras = $data['extras'] ?? null;
         $this->cancellationReason = $data['cancellation_reason'] ?? null;
 
         // Converter datas
-        if (isset($data['checkIn']) || isset($data['check_in'])) {
-            $checkInDate = $data['checkIn'] ?? $data['check_in'];
-            $this->checkIn = new DateTime($checkInDate);
+        if (isset($data['check_in_date'])) {
+            $this->checkInDate = new DateTime($data['check_in_date']);
         }
 
-        if (isset($data['checkOut']) || isset($data['check_out'])) {
-            $checkOutDate = $data['checkOut'] ?? $data['check_out'];
-            $this->checkOut = new DateTime($checkOutDate);
+        if (isset($data['check_out_date'])) {
+            $this->checkOutDate = new DateTime($data['check_out_date']);
         }
 
-        if (isset($data['createdAt']) || isset($data['created_at'])) {
-            $createdAtDate = $data['createdAt'] ?? $data['created_at'];
-            $this->createdAt = new DateTime($createdAtDate);
+        if (isset($data['booking_date'])) {
+            $this->bookingDate = new DateTime($data['booking_date']);
         }
 
-        if (isset($data['updatedAt']) || isset($data['updated_at'])) {
-            $updatedAtDate = $data['updatedAt'] ?? $data['updated_at'];
-            $this->updatedAt = new DateTime($updatedAtDate);
+        if (isset($data['modification_date'])) {
+            $this->modificationDate = new DateTime($data['modification_date']);
         }
 
-        if (isset($data['cancelled_at'])) {
-            $this->cancelledAt = new DateTime($data['cancelled_at']);
+        if (isset($data['cancellation_date'])) {
+            $this->cancellationDate = new DateTime($data['cancellation_date']);
+        }
+
+        if (isset($data['acknowledged_at'])) {
+            $this->acknowledgedAt = new DateTime($data['acknowledged_at']);
+        }
+
+        if (isset($data['synced_to_pms_at'])) {
+            $this->syncedToPmsAt = new DateTime($data['synced_to_pms_at']);
+        }
+
+        if (isset($data['created_at'])) {
+            $this->createdAt = new DateTime($data['created_at']);
+        }
+
+        if (isset($data['updated_at'])) {
+            $this->updatedAt = new DateTime($data['updated_at']);
         }
 
         // Store original data after filling
@@ -197,34 +231,28 @@ class Reservation implements JsonSerializable
         return [
             'id' => $this->id,
             'property_id' => $this->propertyId,
-            'room_id' => $this->roomId,
-            'rate_plan_id' => $this->ratePlanId,
-            'booking_reference' => $this->bookingReference,
-            'pms_booking_id' => $this->pmsReservationId,
-            'ota_booking_id' => $this->otaReservationId,
-            'channel_code' => $this->channelCode,
-            'check_in' => $this->checkIn?->format('Y-m-d'),
-            'check_out' => $this->checkOut?->format('Y-m-d'),
+            'property_ota_connection_id' => $this->propertyOtaConnectionId,
+            'ota_name' => $this->otaName,
+            'ota_reservation_id' => $this->otaReservationId,
+            'pms_reservation_id' => $this->pmsReservationId,
+            'status' => $this->status,
+            'check_in_date' => $this->checkInDate?->format('Y-m-d'),
+            'check_out_date' => $this->checkOutDate?->format('Y-m-d'),
+            'nights' => $this->nights,
             'adults' => $this->adults,
             'children' => $this->children,
-            'nights' => $this->nights,
-            'guest' => $this->guest,
-            'guest_name' => $this->getGuestName(),
-            'guestName' => $this->getGuestName(),
-            'additional_guests' => $this->additionalGuests,
-            'status' => $this->status,
-            'total_amount' => $this->totalAmount,
-            'totalAmount' => $this->totalAmount,
-            'currency' => $this->currency,
-            'breakdown' => $this->breakdown,
-            'services' => $this->services,
+            'guest_name' => $this->guestName,
+            'guest_email' => $this->guestEmail,
+            'guest_phone' => $this->guestPhone,
+            'guest_document' => $this->guestDocument,
+            'guest_address' => $this->guestAddress,
             'special_requests' => $this->specialRequests,
-            'policies' => $this->policies,
-            'payment_info' => $this->paymentInfo,
+            'total_amount' => $this->totalAmount,
+            'currency' => $this->currency,
+            'commission_amount' => $this->commissionAmount,
+            'cancellation_reason' => $this->cancellationReason,
             'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
-            'cancelled_at' => $this->cancelledAt?->format('Y-m-d H:i:s'),
-            'cancellation_reason' => $this->cancellationReason,
         ];
     }
 
@@ -233,85 +261,225 @@ class Reservation implements JsonSerializable
     {
         return $this->id;
     }
-    public function getPropertyId(): ?string
+
+    public function getPropertyId(): ?int
     {
         return $this->propertyId;
     }
-    public function getRoomId(): ?string
+
+    public function getPropertyOtaConnectionId(): ?int
     {
-        return $this->roomId;
+        return $this->propertyOtaConnectionId;
     }
-    public function getRatePlanId(): ?string
+
+    public function getOtaName(): ?string
     {
-        return $this->ratePlanId;
+        return $this->otaName;
     }
-    public function getReservationReference(): ?string
-    {
-        return $this->bookingReference;
-    }
-    public function getPmsReservationId(): ?string
-    {
-        return $this->pmsReservationId;
-    }
+
     public function getOtaReservationId(): ?string
     {
         return $this->otaReservationId;
     }
-    public function getChannelCode(): ?string
+
+    public function getOtaConfirmationCode(): ?string
     {
-        return $this->channelCode;
+        return $this->otaConfirmationCode;
     }
-    public function getCheckIn(): ?DateTimeInterface
-    {
-        return $this->checkIn;
-    }
-    public function getCheckOut(): ?DateTimeInterface
-    {
-        return $this->checkOut;
-    }
-    public function getAdults(): int
-    {
-        return $this->adults;
-    }
-    public function getChildren(): int
-    {
-        return $this->children;
-    }
-    public function getNights(): int
-    {
-        return $this->nights;
-    }
-    public function getGuest(): ?array
-    {
-        return $this->guest;
-    }
-    public function getAdditionalGuests(): ?array
-    {
-        return $this->additionalGuests;
-    }
+
     public function getStatus(): string
     {
         return $this->status;
     }
+
+    public function getPaymentStatus(): ?string
+    {
+        return $this->paymentStatus;
+    }
+
+    public function getGuestName(): ?string
+    {
+        return $this->guestName;
+    }
+
+    public function getGuestEmail(): ?string
+    {
+        return $this->guestEmail;
+    }
+
+    public function getGuestPhone(): ?string
+    {
+        return $this->guestPhone;
+    }
+
+    public function getGuestAddress(): ?string
+    {
+        return $this->guestAddress;
+    }
+
+    public function getGuestCountry(): ?string
+    {
+        return $this->guestCountry;
+    }
+
+    public function getSpecialRequests(): ?array
+    {
+        return $this->specialRequests;
+    }
+
+    public function getCheckInDate(): ?DateTimeInterface
+    {
+        return $this->checkInDate;
+    }
+
+    public function getCheckOutDate(): ?DateTimeInterface
+    {
+        return $this->checkOutDate;
+    }
+
+    public function getCheckInTime(): ?string
+    {
+        return $this->checkInTime;
+    }
+
+    public function getCheckOutTime(): ?string
+    {
+        return $this->checkOutTime;
+    }
+
+    public function getNights(): int
+    {
+        return $this->nights;
+    }
+
+    public function getAdults(): int
+    {
+        return $this->adults;
+    }
+
+    public function getChildren(): int
+    {
+        return $this->children;
+    }
+
+    public function getInfants(): int
+    {
+        return $this->infants;
+    }
+
+    public function getOtaRoomId(): ?string
+    {
+        return $this->otaRoomId;
+    }
+
+    public function getOtaRatePlanId(): ?string
+    {
+        return $this->otaRatePlanId;
+    }
+
+    public function getRoomName(): ?string
+    {
+        return $this->roomName;
+    }
+
+    public function getRoomQuantity(): int
+    {
+        return $this->roomQuantity;
+    }
+
     public function getTotalAmount(): ?float
     {
         return $this->totalAmount;
     }
+
+    public function getRoomRate(): ?float
+    {
+        return $this->roomRate;
+    }
+
+    public function getTaxes(): ?float
+    {
+        return $this->taxes;
+    }
+
+    public function getFees(): ?float
+    {
+        return $this->fees;
+    }
+
+    public function getCommissionAmount(): ?float
+    {
+        return $this->commissionAmount;
+    }
+
+    public function getCommissionPercentage(): ?float
+    {
+        return $this->commissionPercentage;
+    }
+
     public function getCurrency(): ?string
     {
         return $this->currency;
     }
-    public function getBreakdown(): ?array
+
+    public function isAcknowledgedToOta(): bool
     {
-        return $this->breakdown;
+        return $this->acknowledgedToOta;
     }
-    public function getServices(): ?array
+
+    public function getAcknowledgedAt(): ?DateTimeInterface
     {
-        return $this->services;
+        return $this->acknowledgedAt;
     }
-    public function getSpecialRequests(): ?array
+
+    public function isSyncedToPms(): bool
     {
-        return $this->specialRequests;
+        return $this->syncedToPms;
+    }
+
+    public function getSyncedToPmsAt(): ?DateTimeInterface
+    {
+        return $this->syncedToPmsAt;
+    }
+
+    public function getPmsReservationId(): ?string
+    {
+        return $this->pmsReservationId;
+    }
+
+    public function getPmsResponse(): ?array
+    {
+        return $this->pmsResponse;
+    }
+
+    public function getRawData(): ?array
+    {
+        return $this->rawData;
+    }
+
+    public function getExtras(): ?array
+    {
+        return $this->extras;
+    }
+
+    public function getBookingDate(): ?DateTimeInterface
+    {
+        return $this->bookingDate;
+    }
+
+    public function getModificationDate(): ?DateTimeInterface
+    {
+        return $this->modificationDate;
+    }
+
+    public function getCancellationDate(): ?DateTimeInterface
+    {
+        return $this->cancellationDate;
+    }
+
+    public function getCancellationReason(): ?string
+    {
+        return $this->cancellationReason;
     }
     public function getPolicies(): ?array
     {
@@ -332,10 +500,6 @@ class Reservation implements JsonSerializable
     public function getCancelledAt(): ?DateTimeInterface
     {
         return $this->cancelledAt;
-    }
-    public function getCancellationReason(): ?string
-    {
-        return $this->cancellationReason;
     }
 
     // Setters com eventos
@@ -359,42 +523,22 @@ class Reservation implements JsonSerializable
         return $this;
     }
 
-    public function setRoomId(?int $roomId): self
+    public function setPropertyOtaConnectionId(?int $propertyOtaConnectionId): self
     {
-        $old = $this->roomId;
-        $this->roomId = $roomId;
-        if ($old !== $roomId) {
-            $this->fireEvent(new ReservationUpdated($this, ['room_id' => $old], ['room_id' => $roomId]));
+        $old = $this->propertyOtaConnectionId;
+        $this->propertyOtaConnectionId = $propertyOtaConnectionId;
+        if ($old !== $propertyOtaConnectionId) {
+            $this->fireEvent(new ReservationUpdated($this, ['property_ota_connection_id' => $old], ['property_ota_connection_id' => $propertyOtaConnectionId]));
         }
         return $this;
     }
 
-    public function setRatePlanId(?string $ratePlanId): self
+    public function setOtaName(?string $otaName): self
     {
-        $old = $this->ratePlanId;
-        $this->ratePlanId = $ratePlanId;
-        if ($old !== $ratePlanId) {
-            $this->fireEvent(new ReservationUpdated($this, ['rate_plan_id' => $old], ['rate_plan_id' => $ratePlanId]));
-        }
-        return $this;
-    }
-
-    public function setReservationReference(?string $reservationReference): self
-    {
-        $old = $this->bookingReference;
-        $this->bookingReference = $reservationReference;
-        if ($old !== $reservationReference) {
-            $this->fireEvent(new ReservationUpdated($this, ['booking_reference' => $old], ['booking_reference' => $reservationReference]));
-        }
-        return $this;
-    }
-
-    public function setPmsReservationId(?string $pmsReservationId): self
-    {
-        $old = $this->pmsReservationId;
-        $this->pmsReservationId = $pmsReservationId;
-        if ($old !== $pmsReservationId) {
-            $this->fireEvent(new ReservationUpdated($this, ['pms_booking_id' => $old], ['pms_booking_id' => $pmsReservationId]));
+        $old = $this->otaName;
+        $this->otaName = $otaName;
+        if ($old !== $otaName) {
+            $this->fireEvent(new ReservationUpdated($this, ['ota_name' => $old], ['ota_name' => $otaName]));
         }
         return $this;
     }
@@ -404,37 +548,64 @@ class Reservation implements JsonSerializable
         $old = $this->otaReservationId;
         $this->otaReservationId = $otaReservationId;
         if ($old !== $otaReservationId) {
-            $this->fireEvent(new ReservationUpdated($this, ['ota_booking_id' => $old], ['ota_booking_id' => $otaReservationId]));
+            $this->fireEvent(new ReservationUpdated($this, ['ota_reservation_id' => $old], ['ota_reservation_id' => $otaReservationId]));
         }
         return $this;
     }
 
-    public function setChannelCode(?string $channelCode): self
+    public function setPmsReservationId(?string $pmsReservationId): self
     {
-        $old = $this->channelCode;
-        $this->channelCode = $channelCode;
-        if ($old !== $channelCode) {
-            $this->fireEvent(new ReservationUpdated($this, ['channel_code' => $old], ['channel_code' => $channelCode]));
+        $old = $this->pmsReservationId;
+        $this->pmsReservationId = $pmsReservationId;
+        if ($old !== $pmsReservationId) {
+            $this->fireEvent(new ReservationUpdated($this, ['pms_reservation_id' => $old], ['pms_reservation_id' => $pmsReservationId]));
         }
         return $this;
     }
 
-    public function setCheckIn(?DateTimeInterface $checkIn): self
+    public function setStatus(?string $status): self
     {
-        $old = $this->checkIn;
-        $this->checkIn = $checkIn;
-        if ($old !== $checkIn) {
-            $this->fireEvent(new ReservationUpdated($this, ['check_in' => $old], ['check_in' => $checkIn]));
+        $old = $this->status;
+        $this->status = $status;
+        if ($old !== $status) {
+            $this->fireEvent(new ReservationUpdated($this, ['status' => $old], ['status' => $status]));
+            
+            // Disparar eventos específicos baseados no status
+            if ($status === 'confirmed') {
+                $this->fireEvent(new ReservationConfirmed($this));
+            } elseif ($status === 'cancelled') {
+                $this->fireEvent(new ReservationCancelled($this));
+            }
         }
         return $this;
     }
 
-    public function setCheckOut(?DateTimeInterface $checkOut): self
+    public function setCheckInDate(?DateTimeInterface $checkInDate): self
     {
-        $old = $this->checkOut;
-        $this->checkOut = $checkOut;
-        if ($old !== $checkOut) {
-            $this->fireEvent(new ReservationUpdated($this, ['check_out' => $old], ['check_out' => $checkOut]));
+        $old = $this->checkInDate;
+        $this->checkInDate = $checkInDate;
+        if ($old !== $checkInDate) {
+            $this->fireEvent(new ReservationUpdated($this, ['check_in_date' => $old], ['check_in_date' => $checkInDate]));
+        }
+        return $this;
+    }
+
+    public function setCheckOutDate(?DateTimeInterface $checkOutDate): self
+    {
+        $old = $this->checkOutDate;
+        $this->checkOutDate = $checkOutDate;
+        if ($old !== $checkOutDate) {
+            $this->fireEvent(new ReservationUpdated($this, ['check_out_date' => $old], ['check_out_date' => $checkOutDate]));
+        }
+        return $this;
+    }
+
+    public function setNights(int $nights): self
+    {
+        $old = $this->nights;
+        $this->nights = $nights;
+        if ($old !== $nights) {
+            $this->fireEvent(new ReservationUpdated($this, ['nights' => $old], ['nights' => $nights]));
         }
         return $this;
     }
@@ -459,52 +630,63 @@ class Reservation implements JsonSerializable
         return $this;
     }
 
-    public function setNights(int $nights): self
+    public function setGuestName(?string $guestName): self
     {
-        $old = $this->nights;
-        $this->nights = $nights;
-        if ($old !== $nights) {
-            $this->fireEvent(new ReservationUpdated($this, ['nights' => $old], ['nights' => $nights]));
+        $old = $this->guestName;
+        $this->guestName = $guestName;
+        if ($old !== $guestName) {
+            $this->fireEvent(new ReservationUpdated($this, ['guest_name' => $old], ['guest_name' => $guestName]));
         }
         return $this;
     }
 
-    public function setGuest(?array $guest): self
+    public function setGuestEmail(?string $guestEmail): self
     {
-        $old = $this->guest;
-        $this->guest = $guest;
-        if ($old !== $guest) {
-            $this->fireEvent(new ReservationUpdated($this, ['guest' => $old], ['guest' => $guest]));
+        $old = $this->guestEmail;
+        $this->guestEmail = $guestEmail;
+        if ($old !== $guestEmail) {
+            $this->fireEvent(new ReservationUpdated($this, ['guest_email' => $old], ['guest_email' => $guestEmail]));
         }
         return $this;
     }
 
-    public function setAdditionalGuests(?array $additionalGuests): self
+    public function setGuestPhone(?string $guestPhone): self
     {
-        $old = $this->additionalGuests;
-        $this->additionalGuests = $additionalGuests;
-        if ($old !== $additionalGuests) {
-            $this->fireEvent(new ReservationUpdated($this, ['additional_guests' => $old], ['additional_guests' => $additionalGuests]));
+        $old = $this->guestPhone;
+        $this->guestPhone = $guestPhone;
+        if ($old !== $guestPhone) {
+            $this->fireEvent(new ReservationUpdated($this, ['guest_phone' => $old], ['guest_phone' => $guestPhone]));
         }
         return $this;
     }
 
-    public function setStatus(string $status): self
+    public function setGuestDocument(?string $guestDocument): self
     {
-        $old = $this->status;
-        $this->status = $status;
-
-        if ($old !== $status) {
-            $this->fireEvent(new ReservationUpdated($this, ['status' => $old], ['status' => $status]));
-
-            // Disparar eventos específicos baseados no status
-            if ($status === 'confirmed') {
-                $this->fireEvent(new ReservationConfirmed($this));
-            } elseif ($status === 'cancelled') {
-                $this->fireEvent(new ReservationCancelled($this));
-            }
+        $old = $this->guestDocument;
+        $this->guestDocument = $guestDocument;
+        if ($old !== $guestDocument) {
+            $this->fireEvent(new ReservationUpdated($this, ['guest_document' => $old], ['guest_document' => $guestDocument]));
         }
+        return $this;
+    }
 
+    public function setGuestAddress(?string $guestAddress): self
+    {
+        $old = $this->guestAddress;
+        $this->guestAddress = $guestAddress;
+        if ($old !== $guestAddress) {
+            $this->fireEvent(new ReservationUpdated($this, ['guest_address' => $old], ['guest_address' => $guestAddress]));
+        }
+        return $this;
+    }
+
+    public function setSpecialRequests(?string $specialRequests): self
+    {
+        $old = $this->specialRequests;
+        $this->specialRequests = $specialRequests;
+        if ($old !== $specialRequests) {
+            $this->fireEvent(new ReservationUpdated($this, ['special_requests' => $old], ['special_requests' => $specialRequests]));
+        }
         return $this;
     }
 
@@ -528,12 +710,22 @@ class Reservation implements JsonSerializable
         return $this;
     }
 
-    public function setBreakdown(?array $breakdown): self
+    public function setCommissionAmount(?float $commissionAmount): self
     {
-        $old = $this->breakdown;
-        $this->breakdown = $breakdown;
-        if ($old !== $breakdown) {
-            $this->fireEvent(new ReservationUpdated($this, ['breakdown' => $old], ['breakdown' => $breakdown]));
+        $old = $this->commissionAmount;
+        $this->commissionAmount = $commissionAmount;
+        if ($old !== $commissionAmount) {
+            $this->fireEvent(new ReservationUpdated($this, ['commission_amount' => $old], ['commission_amount' => $commissionAmount]));
+        }
+        return $this;
+    }
+
+    public function setCancellationReason(?string $cancellationReason): self
+    {
+        $old = $this->cancellationReason;
+        $this->cancellationReason = $cancellationReason;
+        if ($old !== $cancellationReason) {
+            $this->fireEvent(new ReservationUpdated($this, ['cancellation_reason' => $old], ['cancellation_reason' => $cancellationReason]));
         }
         return $this;
     }
@@ -544,16 +736,6 @@ class Reservation implements JsonSerializable
         $this->services = $services;
         if ($old !== $services) {
             $this->fireEvent(new ReservationUpdated($this, ['services' => $old], ['services' => $services]));
-        }
-        return $this;
-    }
-
-    public function setSpecialRequests(?array $specialRequests): self
-    {
-        $old = $this->specialRequests;
-        $this->specialRequests = $specialRequests;
-        if ($old !== $specialRequests) {
-            $this->fireEvent(new ReservationUpdated($this, ['special_requests' => $old], ['special_requests' => $specialRequests]));
         }
         return $this;
     }
@@ -574,16 +756,6 @@ class Reservation implements JsonSerializable
         $this->paymentInfo = $paymentInfo;
         if ($old !== $paymentInfo) {
             $this->fireEvent(new ReservationUpdated($this, ['payment_info' => $old], ['payment_info' => $paymentInfo]));
-        }
-        return $this;
-    }
-
-    public function setCancellationReason(?string $cancellationReason): self
-    {
-        $old = $this->cancellationReason;
-        $this->cancellationReason = $cancellationReason;
-        if ($old !== $cancellationReason) {
-            $this->fireEvent(new ReservationUpdated($this, ['cancellation_reason' => $old], ['cancellation_reason' => $cancellationReason]));
         }
         return $this;
     }
@@ -647,14 +819,7 @@ class Reservation implements JsonSerializable
      */
     public function getGuestFullName(): ?string
     {
-        if (!$this->guest) {
-            return null;
-        }
-
-        $firstName = $this->guest['first_name'] ?? '';
-        $lastName = $this->guest['last_name'] ?? '';
-
-        return trim($firstName . ' ' . $lastName) ?: null;
+        return $this->guestName;
     }
 
     /**
@@ -662,54 +827,18 @@ class Reservation implements JsonSerializable
      * 
      * @return string|null
      */
-    public function getGuestName(): ?string
-    {
-        return $this->getGuestFullName();
-    }
-
-    /**
-     * Definir nome do hóspede principal
-     * 
-     * @param string|null $name Nome completo do hóspede
-     * @return self
-     */
-    public function setGuestName(?string $name): self
-    {
-        $originalData = $this->toArray();
-
-        if ($name) {
-            $nameParts = explode(' ', trim($name), 2);
-            $this->guest = array_merge($this->guest ?? [], [
-                'first_name' => $nameParts[0] ?? '',
-                'last_name' => $nameParts[1] ?? ''
-            ]);
-        } else {
-            $this->guest = null;
-        }
-
-        $this->fireUpdateEventIfNeeded($originalData);
-        return $this;
-    }
 
     /**
      * Obter email do hóspede principal
      * 
      * @return string|null
      */
-    public function getGuestEmail(): ?string
-    {
-        return $this->guest['email'] ?? null;
-    }
 
     /**
      * Obter telefone do hóspede principal
      * 
      * @return string|null
      */
-    public function getGuestPhone(): ?string
-    {
-        return $this->guest['phone'] ?? null;
-    }
 
     /**
      * Calcular duração da estadia em dias
@@ -718,11 +847,11 @@ class Reservation implements JsonSerializable
      */
     public function getStayDuration(): int
     {
-        if (!$this->checkIn || !$this->checkOut) {
+        if (!$this->checkInDate || !$this->checkOutDate) {
             return 0;
         }
 
-        return $this->checkIn->diff($this->checkOut)->days;
+        return $this->checkInDate->diff($this->checkOutDate)->days;
     }
 
     /**
@@ -732,11 +861,11 @@ class Reservation implements JsonSerializable
      */
     public function isCheckInToday(): bool
     {
-        if (!$this->checkIn) {
+        if (!$this->checkInDate) {
             return false;
         }
 
-        return $this->checkIn->format('Y-m-d') === (new DateTime())->format('Y-m-d');
+        return $this->checkInDate->format('Y-m-d') === (new DateTime())->format('Y-m-d');
     }
 
     /**
@@ -746,11 +875,11 @@ class Reservation implements JsonSerializable
      */
     public function isCheckOutToday(): bool
     {
-        if (!$this->checkOut) {
+        if (!$this->checkOutDate) {
             return false;
         }
 
-        return $this->checkOut->format('Y-m-d') === (new DateTime())->format('Y-m-d');
+        return $this->checkOutDate->format('Y-m-d') === (new DateTime())->format('Y-m-d');
     }
 
     /**

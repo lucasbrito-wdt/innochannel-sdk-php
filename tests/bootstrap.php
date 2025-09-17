@@ -155,38 +155,29 @@ class TestHelper
 
         return array_merge([
             'id' => 'reservation-' . uniqid(),
-            'propertyId' => 'prop-123',
-            'roomId' => 'room-123',
-            'ratePlanId' => 'rate-123',
-            'confirmationNumber' => 'CONF' . strtoupper(uniqid()),
-            'status' => 'confirmed',
-            'guest' => self::createGuestData(),
-            'dates' => [
-                'checkIn' => $checkIn,
-                'checkOut' => $checkOut,
-                'nights' => $nights
-            ],
-            'occupancy' => [
-                'adults' => rand(1, 3),
-                'children' => rand(0, 2),
-                'total' => rand(1, 5)
-            ],
-            'pricing' => [
-                'baseAmount' => rand(100, 500) * $nights,
-                'taxes' => rand(10, 50),
-                'fees' => rand(5, 25),
-                'totalAmount' => rand(150, 600) * $nights,
-                'currency' => 'BRL'
-            ],
-            'payment' => [
-                'method' => 'credit_card',
-                'status' => 'paid',
-                'transactionId' => 'txn-' . uniqid()
-            ],
-            'source' => 'reservations.com',
-            'specialRequests' => 'Test special request',
-            'createdAt' => date('c'),
-            'updatedAt' => date('c')
+            'property_id' => 1,
+            'property_ota_connection_id' => 1,
+            'ota_name' => 'Booking.com',
+            'ota_reservation_id' => 'BK' . strtoupper(uniqid()),
+            'pms_reservation_id' => 'PMS' . strtoupper(uniqid()),
+            'status' => 'new',
+            'check_in_date' => $checkIn,
+            'check_out_date' => $checkOut,
+            'nights' => $nights,
+            'adults' => rand(1, 3),
+            'children' => rand(0, 2),
+            'guest_name' => 'John Doe',
+            'guest_email' => 'john@example.com',
+            'guest_phone' => '+1234567890',
+            'guest_document' => '123456789',
+            'guest_address' => '123 Main St, City',
+            'special_requests' => 'Test special request',
+            'total_amount' => rand(150, 600) * $nights,
+            'currency' => 'BRL',
+            'commission_amount' => rand(15, 60) * $nights,
+            'cancellation_reason' => null,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
         ], $overrides);
     }
 
@@ -198,7 +189,6 @@ class TestHelper
         return array_merge([
             'id' => 'rate-' . uniqid(),
             'propertyId' => 'prop-123',
-            'roomId' => 'room-123',
             'name' => 'Test Rate Plan ' . rand(1, 100),
             'description' => 'A test rate plan for unit testing',
             'baseRate' => rand(100, 500),

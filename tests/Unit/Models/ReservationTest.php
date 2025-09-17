@@ -30,19 +30,27 @@ class ReservationTest extends TestCase
 
         $this->sampleData = [
             'id' => 'reservation-123',
-            'property_id' => 'property-456',
+            'property_id' => 1,
+            'property_ota_connection_id' => 1,
+            'ota_name' => 'Booking.com',
+            'ota_reservation_id' => 'BK123456',
+            'pms_reservation_id' => 'PMS789',
+            'status' => 'new',
+            'check_in_date' => '2024-01-15',
+            'check_out_date' => '2024-01-20',
+            'nights' => 5,
+            'adults' => 2,
+            'children' => 1,
             'guest_name' => 'John Doe',
             'guest_email' => 'john@example.com',
             'guest_phone' => '+1234567890',
-            'check_in' => '2024-01-15',
-            'check_out' => '2024-01-20',
-            'adults' => 2,
-            'children' => 1,
-            'rooms' => 1,
-            'status' => 'confirmed',
+            'guest_document' => '123456789',
+            'guest_address' => '123 Main St, City',
+            'special_requests' => 'Late check-in',
             'total_amount' => 500.00,
             'currency' => 'USD',
-            'source' => 'reservations.com',
+            'commission_amount' => 50.00,
+            'cancellation_reason' => null,
             'created_at' => '2024-01-01 10:00:00',
             'updated_at' => '2024-01-01 10:00:00'
         ];
@@ -53,9 +61,9 @@ class ReservationTest extends TestCase
         $reservation = new Reservation($this->sampleData);
 
         $this->assertEquals('reservation-123', $reservation->getId());
-        $this->assertEquals('property-456', $reservation->getPropertyId());
+        $this->assertEquals(1, $reservation->getPropertyId());
         $this->assertEquals('John Doe', $reservation->getGuestName());
-        $this->assertEquals('confirmed', $reservation->getStatus());
+        $this->assertEquals('new', $reservation->getStatus());
         $this->assertEquals(500.00, $reservation->getTotalAmount());
     }
 
@@ -209,8 +217,8 @@ class ReservationTest extends TestCase
     {
         $reservation = new Reservation($this->sampleData);
 
-        $this->assertInstanceOf(DateTime::class, $reservation->getCheckIn());
-        $this->assertInstanceOf(DateTime::class, $reservation->getCheckOut());
+        $this->assertInstanceOf(DateTime::class, $reservation->getCheckInDate());
+        $this->assertInstanceOf(DateTime::class, $reservation->getCheckOutDate());
         $this->assertInstanceOf(DateTime::class, $reservation->getCreatedAt());
         $this->assertInstanceOf(DateTime::class, $reservation->getUpdatedAt());
     }

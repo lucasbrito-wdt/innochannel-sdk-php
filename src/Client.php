@@ -1160,11 +1160,11 @@ class Client
      */
     private function validateConfig(array $config): void
     {
-        if (isset($config['api_key'])) {
+        if (!isset($config['api_key'])) {
             throw new ValidationException('API key is required');
         }
 
-        if (isset($config['api_secret'])) {
+        if (!isset($config['api_secret'])) {
             throw new ValidationException('API Secret is required');
         }
 

@@ -39,42 +39,29 @@ class ReservationServiceTest extends TestCase
     {
         return [
             'id' => 'reservation-123',
-            'property_id' => 'property-456',
-            'room_id' => 'room-789',
-            'rate_plan_id' => 'rate-plan-101',
+            'property_id' => 1,
+            'property_ota_connection_id' => 1,
+            'ota_name' => 'Booking.com',
+            'ota_reservation_id' => 'BK123456',
+            'pms_reservation_id' => 'PMS789',
+            'status' => 'new',
+            'check_in_date' => '2024-01-15',
+            'check_out_date' => '2024-01-20',
+            'nights' => 5,
+            'adults' => 2,
+            'children' => 1,
             'guest_name' => 'John Doe',
             'guest_email' => 'john@example.com',
             'guest_phone' => '+1234567890',
-            'check_in' => '2024-01-15',
-            'check_out' => '2024-01-20',
-            'adults' => 2,
-            'children' => 1,
+            'guest_document' => '123456789',
+            'guest_address' => '123 Main St, City',
+            'special_requests' => 'Late check-in',
             'total_amount' => 500.00,
             'currency' => 'USD',
-            'status' => 'confirmed',
-            'source' => 'reservations.com',
-            'confirmation_code' => 'ABC123',
-            'special_requests' => 'Late check-in',
+            'commission_amount' => 50.00,
+            'cancellation_reason' => null,
             'created_at' => '2024-01-01 10:00:00',
-            'updated_at' => '2024-01-01 10:00:00',
-            'guest' => [
-                'name' => 'John Doe',
-                'email' => 'john@example.com',
-                'phone' => '+1234567890',
-                'address' => [
-                    'street' => '123 Main St',
-                    'city' => 'New York',
-                    'state' => 'NY',
-                    'zip' => '10001',
-                    'country' => 'US'
-                ]
-            ],
-            'payment' => [
-                'method' => 'credit_card',
-                'status' => 'paid',
-                'amount' => 500.00,
-                'currency' => 'USD'
-            ]
+            'updated_at' => '2024-01-01 10:00:00'
         ];
     }
 
