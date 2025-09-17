@@ -1253,14 +1253,11 @@ class Client
      */
     private function createAuthentication(array $config): AuthenticationInterface
     {
-        if (isset($config['api_key'])) {
+        if (isset($config['api_key']) && isset($config['api_secret'])) {
             $apiKey = $config['api_key'] ?? '';
-            return new ApiKeyAuthentication($config['api_key'], $apiKey);
-        }
-
-        if (isset($config['api_secret'])) {
             $apiSecret = $config['api_secret'] ?? '';
-            return new ApiKeyAuthentication($config['api_secret'], $apiSecret);
+
+            return new ApiKeyAuthentication($apiKey, $apiSecret);
         }
 
         throw new ValidationException('No valid authentication method provided');
