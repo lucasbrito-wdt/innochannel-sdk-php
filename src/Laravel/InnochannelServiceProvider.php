@@ -12,6 +12,7 @@ use Innochannel\Laravel\Console\InstallCommand;
 use Innochannel\Laravel\Console\SyncCommand;
 use Innochannel\Laravel\Console\TestConnectionCommand;
 use Innochannel\Laravel\Middleware\InnochannelAuth;
+use Innochannel\Sdk\Services\ReservationService;
 
 class InnochannelServiceProvider extends ServiceProvider
 {
@@ -32,14 +33,15 @@ class InnochannelServiceProvider extends ServiceProvider
 
             return new Client([
                 'api_key' => $config['api_key'],
+                'api_secret' => $config['api_secret'],
                 'base_url' => $config['base_url'],
                 'timeout' => $config['timeout'] ?? 30
             ]);
         });
 
         // Register services
-        $this->app->singleton(BookingService::class, function ($app) {
-            return new BookingService($app->make(Client::class));
+        $this->app->singleton(ReservationService::class, function ($app) {
+            return new ReservationService($app->make(Client::class));
         });
 
         $this->app->singleton(PropertyService::class, function ($app) {
@@ -56,7 +58,7 @@ class InnochannelServiceProvider extends ServiceProvider
 
         // Register aliases
         $this->app->alias(Client::class, 'innochannel');
-        $this->app->alias(BookingService::class, 'innochannel.booking');
+        $this->app->alias(ReservationService::class, 'innochannel.reservation');
         $this->app->alias(PropertyService::class, 'innochannel.property');
         $this->app->alias(InventoryService::class, 'innochannel.inventory');
         $this->app->alias(WebhookService::class, 'innochannel.webhook');
@@ -159,7 +161,7 @@ class InnochannelServiceProvider extends ServiceProvider
     {
         return [
             Client::class,
-            BookingService::class,
+            ReservationService::class,
             PropertyService::class,
             InventoryService::class,
             WebhookService::class,
