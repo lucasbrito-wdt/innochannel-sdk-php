@@ -1,6 +1,6 @@
 <?php
 
-namespace Innochannel\Laravel\Events;
+namespace Innochannel\Sdk\Laravel\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -90,7 +90,7 @@ class InventoryWebhookReceived
     public function getDateRange(): array
     {
         $data = $this->getInventoryData();
-        
+
         return [
             'start_date' => $data['start_date'] ?? null,
             'end_date' => $data['end_date'] ?? null,

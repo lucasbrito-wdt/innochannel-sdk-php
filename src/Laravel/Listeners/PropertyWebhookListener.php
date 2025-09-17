@@ -1,8 +1,8 @@
 <?php
 
-namespace Innochannel\Laravel\Listeners;
+namespace Innochannel\Sdk\Laravel\Listeners;
 
-use Innochannel\Laravel\Events\PropertyWebhookReceived;
+use Innochannel\Sdk\Laravel\Events\PropertyWebhookReceived;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +44,6 @@ class PropertyWebhookListener
                 'property_id' => $propertyId,
                 'event_type' => $eventType,
             ]);
-
         } catch (\Exception $e) {
             Log::error("Failed to process property webhook", [
                 'property_id' => $propertyId,

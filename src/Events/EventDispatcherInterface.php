@@ -26,9 +26,10 @@ interface EventDispatcherInterface
      * 
      * @param string $eventName
      * @param callable $listener
+     * @param int $priority
      * @return void
      */
-    public function addListener(string $eventName, callable $listener): void;
+    public function addListener(string $eventName, callable $listener, int $priority = 0): void;
     
     /**
      * Remover listener de evento

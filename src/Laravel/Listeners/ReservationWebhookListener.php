@@ -1,25 +1,25 @@
 <?php
 
-namespace Innochannel\Laravel\Listeners;
+namespace Innochannel\Sdk\Laravel\Listeners;
 
-use Innochannel\Laravel\Events\BookingWebhookReceived;
+use Innochannel\Sdk\Laravel\Events\ReservationWebhookReceived;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-class BookingWebhookListener
+class ReservationWebhookListener
 {
     /**
      * Handle the event.
      */
-    public function handle(BookingWebhookReceived $event): void
+    public function handle(ReservationWebhookReceived $event): void
     {
-        $bookingId = $event->getBookingId();
+        $reservationId = $event->getReservationId();
         $eventType = $event->getEventType();
-        $bookingData = $event->getBookingData();
+        $reservationData = $event->getReservationData();
 
-        Log::info("Processing booking webhook", [
-            'booking_id' => $bookingId,
+        Log::info("Processing reservation webhook", [
+            'reservation_id' => $reservationId,
             'event_type' => $eventType,
             'timestamp' => now(),
         ]);
@@ -30,24 +30,23 @@ class BookingWebhookListener
 
             // Handle different event types
             match ($eventType) {
-                'booking.created' => $this->handleBookingCreated($bookingData),
-                'booking.updated' => $this->handleBookingUpdated($bookingData),
-                'booking.cancelled' => $this->handleBookingCancelled($bookingData),
-                'booking.modified' => $this->handleBookingModified($bookingData),
-                default => $this->handleUnknownEvent($eventType, $bookingData),
+                'reservation.created' => $this->handleReservationCreated($reservationData),
+                'reservation.updated' => $this->handleReservationUpdated($reservationData),
+                'reservation.cancelled' => $this->handleReservationCancelled($reservationData),
+                'reservation.modified' => $this->handleReservationModified($reservationData),
+                default => $this->handleUnknownEvent($eventType, $reservationData),
             };
 
             // Clear related cache
-            $this->clearRelatedCache($bookingId);
+            $this->clearRelatedCache($reservationId);
 
-            Log::info("Booking webhook processed successfully", [
-                'booking_id' => $bookingId,
+            Log::info("Reservation webhook processed successfully", [
+                'reservation_id' => $reservationId,
                 'event_type' => $eventType,
             ]);
-
         } catch (\Exception $e) {
             Log::error("Failed to process booking webhook", [
-                'booking_id' => $bookingId,
+                'reservation_id' => $reservationId,
                 'event_type' => $eventType,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -61,9 +60,9 @@ class BookingWebhookListener
     /**
      * Store webhook record in database.
      */
-    protected function storeWebhookRecord(BookingWebhookReceived $event): void
+    protected function storeWebhookRecord(ReservationWebhookReceived $event): void
     {
-        DB::table('innochannel_webhooks')->insert([
+        DB::table('innochannel_reservation_webhooks')->insert([
             'event_type' => $event->getEventType(),
             'webhook_id' => $event->payload['webhook_id'] ?? uniqid('webhook_'),
             'payload' => json_encode($event->payload),
@@ -75,15 +74,15 @@ class BookingWebhookListener
     }
 
     /**
-     * Handle booking created event.
+     * Handle reservation created event.
      */
-    protected function handleBookingCreated(array $bookingData): void
+    protected function handleReservationCreated(array $reservationData): void
     {
         // Example: Send welcome email, update local database, etc.
-        Log::info("New booking created", [
-            'booking_id' => $bookingData['id'] ?? null,
-            'guest_name' => $bookingData['guest']['name'] ?? null,
-            'property_id' => $bookingData['property_id'] ?? null,
+        Log::info("New reservation created", [
+            'reservation_id' => $reservationData['id'] ?? null,
+            'guest_name' => $reservationData['guest']['name'] ?? null,
+            'property_id' => $reservationData['property_id'] ?? null,
         ]);
 
         // Add your custom logic here
@@ -97,11 +96,11 @@ class BookingWebhookListener
     /**
      * Handle booking updated event.
      */
-    protected function handleBookingUpdated(array $bookingData): void
+    protected function handleReservationUpdated(array $reservationData): void
     {
-        Log::info("Booking updated", [
-            'booking_id' => $bookingData['id'] ?? null,
-            'changes' => $bookingData['changes'] ?? [],
+        Log::info("Reservation updated", [
+            'reservation_id' => $reservationData['id'] ?? null,
+            'changes' => $reservationData['changes'] ?? [],
         ]);
 
         // Add your custom logic here
@@ -114,11 +113,11 @@ class BookingWebhookListener
     /**
      * Handle booking cancelled event.
      */
-    protected function handleBookingCancelled(array $bookingData): void
+    protected function handleReservationCancelled(array $reservationData): void
     {
-        Log::info("Booking cancelled", [
-            'booking_id' => $bookingData['id'] ?? null,
-            'cancellation_reason' => $bookingData['cancellation_reason'] ?? null,
+        Log::info("Reservation cancelled", [
+            'reservation_id' => $reservationData['id'] ?? null,
+            'cancellation_reason' => $reservationData['cancellation_reason'] ?? null,
         ]);
 
         // Add your custom logic here
@@ -132,11 +131,11 @@ class BookingWebhookListener
     /**
      * Handle booking modified event.
      */
-    protected function handleBookingModified(array $bookingData): void
+    protected function handleReservationModified(array $reservationData): void
     {
-        Log::info("Booking modified", [
-            'booking_id' => $bookingData['id'] ?? null,
-            'modifications' => $bookingData['modifications'] ?? [],
+        Log::info("Reservation modified", [
+            'reservation_id' => $reservationData['id'] ?? null,
+            'modifications' => $reservationData['modifications'] ?? [],
         ]);
 
         // Add your custom logic here
@@ -151,7 +150,7 @@ class BookingWebhookListener
      */
     protected function handleUnknownEvent(string $eventType, array $data): void
     {
-        Log::warning("Unknown booking event type received", [
+        Log::warning("Unknown reservation event type received", [
             'event_type' => $eventType,
             'data_keys' => array_keys($data),
         ]);
@@ -160,17 +159,17 @@ class BookingWebhookListener
     /**
      * Clear related cache entries.
      */
-    protected function clearRelatedCache(?string $bookingId): void
+    protected function clearRelatedCache(?string $reservationId): void
     {
-        if (!$bookingId) {
+        if (!$reservationId) {
             return;
         }
 
         $cacheKeys = [
-            "booking:{$bookingId}",
-            "booking:{$bookingId}:details",
-            "bookings:list",
-            "bookings:recent",
+            "reservation:{$reservationId}",
+            "reservation:{$reservationId}:details",
+            "reservations:list",
+            "reservations:recent",
         ];
 
         foreach ($cacheKeys as $key) {

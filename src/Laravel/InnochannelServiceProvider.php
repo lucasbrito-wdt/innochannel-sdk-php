@@ -131,16 +131,16 @@ class InnochannelServiceProvider extends ServiceProvider
         $events = $this->app['events'];
 
         // Booking events
-        $events->listen('innochannel.booking.created', function ($booking) {
-            \Log::info('Innochannel booking created', ['booking_id' => $booking->id]);
+        $events->listen('innochannel.reservation.created', function ($reservation) {
+            \Log::info('Innochannel reservation created', ['reservation_id' => $reservation->id]);
         });
 
-        $events->listen('innochannel.booking.updated', function ($booking) {
-            \Log::info('Innochannel booking updated', ['booking_id' => $booking->id]);
+        $events->listen('innochannel.reservation.updated', function ($reservation) {
+            \Log::info('Innochannel reservation updated', ['reservation_id' => $reservation->id]);
         });
 
-        $events->listen('innochannel.booking.cancelled', function ($booking) {
-            \Log::info('Innochannel booking cancelled', ['booking_id' => $booking->id]);
+        $events->listen('innochannel.reservation.cancelled', function ($reservation) {
+            \Log::info('Innochannel reservation cancelled', ['reservation_id' => $reservation->id]);
         });
 
         // Property events
@@ -166,7 +166,7 @@ class InnochannelServiceProvider extends ServiceProvider
             InventoryService::class,
             WebhookService::class,
             'innochannel',
-            'innochannel.booking',
+            'innochannel.reservation',
             'innochannel.property',
             'innochannel.inventory',
             'innochannel.webhook',

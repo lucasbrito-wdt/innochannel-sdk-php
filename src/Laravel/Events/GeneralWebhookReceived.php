@@ -1,6 +1,6 @@
 <?php
 
-namespace Innochannel\Laravel\Events;
+namespace Innochannel\Sdk\Laravel\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;

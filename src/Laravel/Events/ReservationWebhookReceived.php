@@ -5,7 +5,7 @@ namespace Innochannel\Sdk\Laravel\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PropertyWebhookReceived
+class ReservationWebhookReceived
 {
     use Dispatchable, SerializesModels;
 
@@ -29,9 +29,9 @@ class PropertyWebhookReceived
     }
 
     /**
-     * Get the property ID from the payload.
+     * Get the reservation ID from the payload.
      */
-    public function getPropertyId(): ?string
+    public function getReservationId(): ?string
     {
         return $this->payload['data']['id'] ?? null;
     }
@@ -45,42 +45,42 @@ class PropertyWebhookReceived
     }
 
     /**
-     * Get the property data.
+     * Get the reservation data.
      */
-    public function getPropertyData(): array
+    public function getReservationData(): array
     {
         return $this->payload['data'] ?? [];
     }
 
     /**
-     * Check if this is a property creation event.
+     * Check if this is a reservation creation event.
      */
-    public function isPropertyCreated(): bool
+    public function isReservationCreated(): bool
     {
-        return $this->getEventType() === 'property.created';
+        return $this->getEventType() === 'reservation.created';
     }
 
     /**
-     * Check if this is a property update event.
+     * Check if this is a reservation update event.
      */
-    public function isPropertyUpdated(): bool
+    public function isReservationUpdated(): bool
     {
-        return $this->getEventType() === 'property.updated';
+        return $this->getEventType() === 'reservation.updated';
     }
 
     /**
-     * Check if this is a property deletion event.
+     * Check if this is a reservation cancellation event.
      */
-    public function isPropertyDeleted(): bool
+    public function isReservationCancelled(): bool
     {
-        return $this->getEventType() === 'property.deleted';
+        return $this->getEventType() === 'reservation.cancelled';
     }
 
     /**
-     * Check if this is a property status change event.
+     * Check if this is a reservation modification event.
      */
-    public function isPropertyStatusChanged(): bool
+    public function isReservationModified(): bool
     {
-        return $this->getEventType() === 'property.status_changed';
+        return $this->getEventType() === 'reservation.modified';
     }
 }

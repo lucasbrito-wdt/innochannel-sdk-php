@@ -1,8 +1,8 @@
 <?php
 
-namespace Innochannel\Laravel\Listeners;
+namespace Innochannel\Sdk\Laravel\Listeners;
 
-use Innochannel\Laravel\Events\InventoryWebhookReceived;
+use Innochannel\Sdk\Laravel\Events\InventoryWebhookReceived;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -46,7 +46,6 @@ class InventoryWebhookListener
                 'property_id' => $propertyId,
                 'event_type' => $eventType,
             ]);
-
         } catch (\Exception $e) {
             Log::error("Failed to process inventory webhook", [
                 'property_id' => $propertyId,
@@ -203,7 +202,7 @@ class InventoryWebhookListener
         if ($dateRange) {
             $startDate = $dateRange['start'] ?? null;
             $endDate = $dateRange['end'] ?? null;
-            
+
             if ($startDate && $endDate) {
                 $cacheKeys[] = "inventory:{$propertyId}:{$startDate}:{$endDate}";
                 $cacheKeys[] = "rates:{$propertyId}:{$startDate}:{$endDate}";

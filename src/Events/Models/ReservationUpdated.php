@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Innochannel\Sdk\Events\Models;
 
-use Innochannel\Sdk\Models\Booking;
+use Innochannel\Sdk\Models\Reservation;
 
 /**
  * Evento disparado quando uma reserva é atualizada
@@ -13,24 +13,25 @@ use Innochannel\Sdk\Models\Booking;
  * @author Innochannel SDK Team
  * @version 1.0.0
  */
-class BookingUpdated extends BookingEvent
+class ReservationUpdated extends ReservationEvent
 {
     public function __construct(
-        Booking $booking,
+        Reservation $reservation,
         protected array $originalData = [],
         protected array $changedFields = []
     ) {
-        parent::__construct($booking, [
+        parent::__construct($reservation, [
             'original_data' => $originalData,
             'changed_fields' => $changedFields,
         ]);
     }
-    
+
+
     public function getName(): string
     {
-        return 'booking.updated';
+        return 'reservation.updated';
     }
-    
+
     /**
      * Retorna os dados originais antes da atualização
      * 
@@ -40,7 +41,7 @@ class BookingUpdated extends BookingEvent
     {
         return $this->originalData;
     }
-    
+
     /**
      * Retorna os campos que foram alterados
      * 

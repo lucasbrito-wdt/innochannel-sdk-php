@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Innochannel\Sdk\Events\Models;
 
-use Innochannel\Sdk\Models\Booking;
-
 /**
  * Evento disparado quando uma reserva é deletada
  * 
@@ -13,10 +11,10 @@ use Innochannel\Sdk\Models\Booking;
  * @author Innochannel SDK Team
  * @version 1.0.0
  */
-class BookingDeleted extends BookingEvent
+class ReservationDeleted extends ReservationEvent
 {
     public function getName(): string
     {
-        return 'booking.deleted';
+        return 'reservation.deleted';
     }
 }

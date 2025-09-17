@@ -1,8 +1,8 @@
 <?php
 
-namespace Innochannel\Laravel\Listeners;
+namespace Innochannel\Sdk\Laravel\Listeners;
 
-use Innochannel\Laravel\Events\GeneralWebhookReceived;
+use Innochannel\Sdk\Laravel\Events\GeneralWebhookReceived;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -46,7 +46,6 @@ class GeneralWebhookListener
             Log::info("General webhook processed successfully", [
                 'event_type' => $eventType,
             ]);
-
         } catch (\Exception $e) {
             Log::error("Failed to process general webhook", [
                 'event_type' => $eventType,
@@ -119,7 +118,7 @@ class GeneralWebhookListener
         // - Update status pages
         // - Notify administrators
         // - Cache maintenance status
-        
+
         Cache::put('innochannel_maintenance_status', [
             'type' => $maintenanceType,
             'scheduled_time' => $scheduledTime,
@@ -241,7 +240,7 @@ class GeneralWebhookListener
     protected function handleApiOperational(array $services): void
     {
         Log::info("API is operational", ['services' => array_keys($services)]);
-        
+
         // Clear any degradation alerts
         Cache::forget('innochannel_api_degraded');
     }
@@ -252,9 +251,9 @@ class GeneralWebhookListener
     protected function handleApiDegraded(array $services): void
     {
         Log::warning("API is degraded", ['services' => array_keys($services)]);
-        
+
         Cache::put('innochannel_api_degraded', true, now()->addHours(1));
-        
+
         // Add your degraded API logic here
         // For example:
         // - Enable fallback mechanisms
@@ -268,9 +267,9 @@ class GeneralWebhookListener
     protected function handleApiOutage(array $services): void
     {
         Log::error("API outage detected", ['services' => array_keys($services)]);
-        
+
         Cache::put('innochannel_api_outage', true, now()->addHours(2));
-        
+
         // Add your outage handling logic here
         // For example:
         // - Switch to offline mode

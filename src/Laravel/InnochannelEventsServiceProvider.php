@@ -111,9 +111,9 @@ class InnochannelEventsServiceProvider extends ServiceProvider
                     $listener = $this->app->make($listenerClass);
                     
                     if (is_callable($listener)) {
-                        $dispatcher->listen($eventName, $listener);
+                        $dispatcher->addListener($eventName, $listener);
                     } elseif (method_exists($listener, 'handle')) {
-                        $dispatcher->listen($eventName, [$listener, 'handle']);
+                        $dispatcher->addListener($eventName, [$listener, 'handle']);
                     }
                 }
             }
@@ -130,7 +130,7 @@ class InnochannelEventsServiceProvider extends ServiceProvider
         $logLevel = config('innochannel-events.logging.level', 'info');
 
         // Adiciona um listener global para logging
-        $dispatcher->listen('*', function ($event) use ($logChannel, $logLevel) {
+        $dispatcher->addListener('*', function ($event) use ($logChannel, $logLevel) {
             if ($event instanceof \Innochannel\Sdk\Events\EventInterface) {
                 $logger = \Illuminate\Support\Facades\Log::channel($logChannel);
                 
