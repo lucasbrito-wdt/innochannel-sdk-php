@@ -13,7 +13,7 @@ namespace Innochannel\Sdk;
  */
 class RequestOptions
 {
-    // Constants for Guzzle options
+    // Constants for HTTP request options (compatible with Laravel HTTP)
     public const QUERY = 'query';
     public const JSON = 'json';
     public const HEADERS = 'headers';
@@ -139,9 +139,9 @@ class RequestOptions
     }
 
     /**
-     * Converter para array de opções do Guzzle
+     * Converter para array de opções HTTP (compatível com Laravel HTTP)
      */
-    public function toGuzzleOptions(): array
+    public function toHttpOptions(): array
     {
         $options = $this->options;
 
@@ -162,6 +162,15 @@ class RequestOptions
         }
 
         return $options;
+    }
+
+    /**
+     * Converter para array de opções do Guzzle (mantido para compatibilidade)
+     * @deprecated Use toHttpOptions() instead
+     */
+    public function toGuzzleOptions(): array
+    {
+        return $this->toHttpOptions();
     }
 
     /**

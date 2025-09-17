@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Innochannel\Sdk;
 
-use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\Exception\GuzzleException;
-use Psr\Http\Message\ResponseInterface;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\Response;
+use Illuminate\Http\Client\RequestException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Innochannel\Sdk\Auth\AuthenticationInterface;
@@ -38,12 +38,13 @@ class Client
     private const DEFAULT_TIMEOUT = 30;
     private const DEFAULT_CONNECT_TIMEOUT = 10;
     
-    private HttpClient $httpClient;
     private AuthenticationInterface $auth;
     private LoggerInterface $logger;
     private string $baseUrl;
     private int $retryAttempts;
     private int $retryDelay;
+    private int $timeout;
+    private int $connectTimeout;
     
     // Services
     private ?PropertyService $propertyService = null;
@@ -54,10 +55,9 @@ class Client
     
     /**
      * @param array $config Configuração do cliente
-     * @param HttpClient|null $httpClient Cliente HTTP customizado (opcional)
      * @throws ValidationException
      */
-    public function __construct(array $config = [], ?HttpClient $httpClient = null)
+    public function __construct(array $config = [])
     {
         $this->validateConfig($config);
         
@@ -65,22 +65,13 @@ class Client
         $this->logger = $config['logger'] ?? new NullLogger();
         $this->retryAttempts = $config['retry_attempts'] ?? 0;
         $this->retryDelay = $config['retry_delay'] ?? 1000;
+        $this->timeout = $config['timeout'] ?? self::DEFAULT_TIMEOUT;
+        $this->connectTimeout = $config['connect_timeout'] ?? self::DEFAULT_CONNECT_TIMEOUT;
         
         // Configurar autenticação
         $this->auth = $this->createAuthentication($config);
-        
-        // Configurar cliente HTTP
-        if ($httpClient !== null) {
-            $this->httpClient = $httpClient;
-        } else {
-            $this->httpClient = new HttpClient([
-                'base_uri' => $this->baseUrl,
-                'timeout' => $config['timeout'] ?? self::DEFAULT_TIMEOUT,
-                'connect_timeout' => $config['connect_timeout'] ?? self::DEFAULT_CONNECT_TIMEOUT,
-            ]);
-        }
     }
-    
+
     /**
      * Serviço de propriedades
      */
@@ -994,29 +985,12 @@ class Client
      * @throws AuthenticationException
      */
     /**
-     * Determine if a request should be retried based on the exception
+     * Determine if a request should be retried based on the status code
      */
-    private function shouldRetry(GuzzleException $e): bool
+    private function shouldRetry(int $statusCode): bool
     {
         // Retry on server errors (5xx) and specific client errors
-        if ($e instanceof \GuzzleHttp\Exception\ServerException) {
-            return true;
-        }
-        
-        if ($e instanceof \GuzzleHttp\Exception\ConnectException) {
-            return true;
-        }
-        
-        if ($e instanceof \GuzzleHttp\Exception\RequestException) {
-            $response = $e->getResponse();
-            if ($response) {
-                $statusCode = $response->getStatusCode();
-                // Retry on 503 Service Unavailable, 502 Bad Gateway, 504 Gateway Timeout
-                return in_array($statusCode, [502, 503, 504]);
-            }
-        }
-        
-        return false;
+        return in_array($statusCode, [502, 503, 504]);
     }
 
     public function request(string $method, string $endpoint, array $options = []): ?array
@@ -1034,21 +1008,39 @@ class Client
                 ];
                 
                 // Merge default headers with any provided headers
-                $options['headers'] = array_merge($defaultHeaders, $options['headers'] ?? []);
+                $headers = array_merge($defaultHeaders, $options['headers'] ?? []);
                 
                 // Adicionar autenticação
-                $options = $this->auth->authenticate($options);
+                $authOptions = $this->auth->authenticate(['headers' => $headers]);
+                $headers = $authOptions['headers'];
                 
                 $this->logger->debug('Making API request', [
                     'method' => $method,
                     'endpoint' => $endpoint,
                     'attempt' => $attempt + 1,
-                    'options' => $this->sanitizeLogOptions($options)
+                    'options' => $this->sanitizeLogOptions(['headers' => $headers])
                 ]);
                 
-                $response = $this->httpClient->request($method, $endpoint, $options);
-                $statusCode = $response->getStatusCode();
-                $body = $response->getBody()->getContents();
+                // Construir URL completa
+                $url = rtrim($this->baseUrl, '/') . '/' . ltrim($endpoint, '/');
+                
+                // Configurar o cliente HTTP do Laravel
+                $httpClient = Http::withHeaders($headers)
+                    ->timeout($this->timeout)
+                    ->connectTimeout($this->connectTimeout);
+                
+                // Fazer a requisição baseada no método
+                $response = match (strtoupper($method)) {
+                    'GET' => $httpClient->get($url, $options['query'] ?? []),
+                    'POST' => $httpClient->post($url, $options['json'] ?? []),
+                    'PUT' => $httpClient->put($url, $options['json'] ?? []),
+                    'PATCH' => $httpClient->patch($url, $options['json'] ?? []),
+                    'DELETE' => $httpClient->delete($url),
+                    default => throw new ApiException("Unsupported HTTP method: {$method}")
+                };
+                
+                $statusCode = $response->status();
+                $body = $response->body();
                 
                 $this->logger->debug('API response received', [
                     'status_code' => $statusCode,
@@ -1064,52 +1056,58 @@ class Client
                     return null;
                 }
                 
-                $data = json_decode($body, true);
+                $data = $response->json();
                 
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    throw new ApiException('Invalid JSON response: ' . json_last_error_msg());
+                if ($data === null && !empty($body)) {
+                    throw new ApiException('Invalid JSON response');
                 }
                 
                 return $data;
                 
-            } catch (GuzzleException $e) {
+            } catch (RequestException $e) {
                 $attempt++;
                 
-                // Handle HTTP errors that should throw specific exceptions
-                if ($e instanceof \GuzzleHttp\Exception\ClientException || 
-                    $e instanceof \GuzzleHttp\Exception\ServerException) {
-                    $response = $e->getResponse();
-                    if ($response) {
-                        $statusCode = $response->getStatusCode();
-                        $body = $response->getBody()->getContents();
-                        
-                        // Don't retry authentication errors or validation errors
-                        if ($statusCode === 401 || $statusCode === 422) {
-                            $this->handleErrorResponse($statusCode, $body);
-                        }
-                        
-                        // Check if we should retry for other errors
-                        if ($attempt < $maxAttempts && $this->shouldRetry($e)) {
-                            $this->logger->warning('Request failed, retrying', [
-                                'method' => $method,
-                                'endpoint' => $endpoint,
-                                'attempt' => $attempt,
-                                'error' => $e->getMessage(),
-                                'retry_delay' => $this->retryDelay
-                            ]);
-                            
-                            // Wait before retrying
-                            usleep($this->retryDelay * 1000); // Convert to microseconds
-                            continue;
-                        }
-                        
-                        // If we can't retry or max attempts reached, handle the error
-                        $this->handleErrorResponse($statusCode, $body);
-                    }
+                $statusCode = $e->response ? $e->response->status() : 0;
+                $body = $e->response ? $e->response->body() : '';
+                
+                // Don't retry authentication errors or validation errors
+                if ($statusCode === 401 || $statusCode === 422) {
+                    $this->handleErrorResponse($statusCode, $body);
                 }
                 
+                // Check if we should retry for other errors
+                if ($attempt < $maxAttempts && $this->shouldRetry($statusCode)) {
+                    $this->logger->warning('Request failed, retrying', [
+                        'method' => $method,
+                        'endpoint' => $endpoint,
+                        'attempt' => $attempt,
+                        'error' => $e->getMessage(),
+                        'retry_delay' => $this->retryDelay
+                    ]);
+                    
+                    // Wait before retrying
+                    usleep($this->retryDelay * 1000); // Convert to microseconds
+                    continue;
+                }
+                
+                // If we can't retry or max attempts reached, handle the error
+                if ($statusCode > 0) {
+                    $this->handleErrorResponse($statusCode, $body);
+                }
+                
+                $this->logger->error('HTTP request failed', [
+                    'method' => $method,
+                    'endpoint' => $endpoint,
+                    'error' => $e->getMessage()
+                ]);
+                
+                throw new ApiException('HTTP request failed: ' . $e->getMessage(), 0, $e);
+                
+            } catch (\Exception $e) {
+                $attempt++;
+                
                 // Check if we should retry for other types of exceptions
-                if ($attempt < $maxAttempts && $this->shouldRetry($e)) {
+                if ($attempt < $maxAttempts) {
                     $this->logger->warning('Request failed, retrying', [
                         'method' => $method,
                         'endpoint' => $endpoint,
@@ -1143,7 +1141,7 @@ class Client
     {
         $options = [];
         if (!empty($query)) {
-            $options[RequestOptions::QUERY] = $query;
+            $options['query'] = $query;
         }
         
         return $this->request('GET', $endpoint, $options);
@@ -1156,7 +1154,7 @@ class Client
     {
         $options = [];
         if (!empty($data)) {
-            $options[RequestOptions::JSON] = $data;
+            $options['json'] = $data;
         }
         
         return $this->request('POST', $endpoint, $options);
@@ -1169,7 +1167,7 @@ class Client
     {
         $options = [];
         if (!empty($data)) {
-            $options[RequestOptions::JSON] = $data;
+            $options['json'] = $data;
         }
         
         return $this->request('PUT', $endpoint, $options);
@@ -1198,7 +1196,7 @@ class Client
     {
         $options = [];
         if (!empty($data)) {
-            $options[RequestOptions::JSON] = $data;
+            $options['json'] = $data;
         }
         
         return $this->request('PATCH', $endpoint, $options);
