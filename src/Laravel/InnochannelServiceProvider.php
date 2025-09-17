@@ -22,10 +22,10 @@ class InnochannelServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Merge configuration
-        $this->mergeConfigFrom(
-            __DIR__ . '/../../config/innochannel.php',
-            'innochannel'
-        );
+        $configPath = __DIR__ . '/config/innochannel.php';
+        if (file_exists($configPath)) {
+            $this->mergeConfigFrom($configPath, 'innochannel');
+        }
 
         // Register the main client
         $this->app->singleton(Client::class, function ($app) {
