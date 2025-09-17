@@ -4,7 +4,6 @@ namespace Innochannel\Laravel\Console;
 
 use Illuminate\Console\Command;
 use Innochannel\Laravel\Facades\Innochannel;
-use Innochannel\Laravel\Facades\InnochannelReservation;
 use Exception;
 
 class TestConnectionCommand extends Command
@@ -156,7 +155,7 @@ class TestConnectionCommand extends Command
                 return Innochannel::getProperties(['limit' => 1]);
             },
             'Reservations' => function () {
-                return InnochannelReservation::getReservations(['limit' => 1]);
+                return Innochannel::getReservations(['limit' => 1]);
             },
         ];
 
