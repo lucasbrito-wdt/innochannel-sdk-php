@@ -3,12 +3,11 @@
 namespace Innochannel\Laravel;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
-use Innochannel\Client;
-use Innochannel\Services\BookingService;
-use Innochannel\Services\PropertyService;
-use Innochannel\Services\InventoryService;
-use Innochannel\Services\WebhookService;
+use Innochannel\Sdk\Client;
+use Innochannel\Sdk\Services\BookingService;
+use Innochannel\Sdk\Services\PropertyService;
+use Innochannel\Sdk\Services\InventoryService;
+use Innochannel\Sdk\Services\WebhookService;
 use Innochannel\Laravel\Console\InstallCommand;
 use Innochannel\Laravel\Console\SyncCommand;
 use Innochannel\Laravel\Console\TestConnectionCommand;
