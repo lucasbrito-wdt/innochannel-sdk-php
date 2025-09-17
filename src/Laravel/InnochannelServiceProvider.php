@@ -9,9 +9,9 @@ use Innochannel\Services\BookingService;
 use Innochannel\Services\PropertyService;
 use Innochannel\Services\InventoryService;
 use Innochannel\Services\WebhookService;
-use Innochannel\Laravel\Console\Commands\InstallCommand;
-use Innochannel\Laravel\Console\Commands\PublishCommand;
-use Innochannel\Laravel\Console\Commands\StatusCommand;
+use Innochannel\Laravel\Console\InstallCommand;
+use Innochannel\Laravel\Console\SyncCommand;
+use Innochannel\Laravel\Console\TestConnectionCommand;
 use Innochannel\Laravel\Middleware\InnochannelAuth;
 
 class InnochannelServiceProvider extends ServiceProvider
@@ -112,8 +112,8 @@ class InnochannelServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallCommand::class,
-                PublishCommand::class,
-                StatusCommand::class,
+                SyncCommand::class,
+                TestConnectionCommand::class,
             ]);
         }
 
