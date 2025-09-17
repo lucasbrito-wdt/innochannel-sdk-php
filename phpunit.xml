@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+    bootstrap="vendor/autoload.php"
+    colors="true"
+    failOnRisky="true"
+    failOnWarning="true"
+    processIsolation="false"
+    stopOnFailure="false"
+    cacheDirectory=".phpunit.cache"
+    backupGlobals="false">
+
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+    </testsuites>
+
+    <source>
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+        <exclude>
+            <directory>./src/Contracts</directory>
+            <file>./src/bootstrap.php</file>
+        </exclude>
+    </source>
+
+    <coverage includeUncoveredFiles="true"
+        ignoreDeprecatedCodeUnits="true"
+        disableCodeCoverageIgnore="true">
+        <report>
+            <html outputDirectory="coverage/html" />
+            <text outputFile="coverage/coverage.txt" />
+            <clover outputFile="coverage/clover.xml" />
+        </report>
+    </coverage>
+
+    <logging>
+        <junit outputFile="coverage/junit.xml" />
+    </logging>
+
+    <php>
+        <env name="APP_ENV" value="testing" />
+        <env name="INNOCHANNEL_API_URL" value="http://localhost" />
+        <env name="INNOCHANNEL_API_KEY" value="test-api-key" />
+        <env name="INNOCHANNEL_CLIENT_ID" value="test-client-id" />
+        <env name="INNOCHANNEL_CLIENT_SECRET" value="test-client-secret" />
+    </php>
+</phpunit>

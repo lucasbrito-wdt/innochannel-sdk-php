@@ -1,0 +1,15 @@
+# Diretórios de build e dependências
+/dist
+/implementations/php/vendor
+/implementations/javascript/node_modules
+/implementations/python/venv
+/implementations/python/__pycache__
+/implementations/python/.pytest_cache
+
+# Diretórios globais de build e dependências
+dist/
+node_modules/
+vendor/
+venv/
+__pycache__/
+.pytest_cache/
