@@ -142,6 +142,848 @@ class Client
     }
     
     /**
+     * Obter propriedades (método de conveniência)
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getProperties(array $filters = []): array
+    {
+        return $this->properties()->list($filters);
+    }
+    
+    /**
+     * Obter uma propriedade específica (método de conveniência)
+     * 
+     * @param string $id ID da propriedade
+     * @return \Innochannel\Sdk\Models\Property
+     * @throws ApiException
+     */
+    public function getProperty(string $id): \Innochannel\Sdk\Models\Property
+    {
+        return $this->properties()->get($id);
+    }
+    
+    /**
+     * Atualizar uma propriedade (método de conveniência)
+     * 
+     * @param string $id ID da propriedade
+     * @param array $data Dados para atualização
+     * @return \Innochannel\Sdk\Models\Property
+     * @throws ApiException
+     */
+    public function updateProperty(string $id, array $data): \Innochannel\Sdk\Models\Property
+    {
+        return $this->properties()->update($id, $data);
+    }
+    
+    /**
+     * Obter reservas (método de conveniência)
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getBookings(array $filters = []): array
+    {
+        return $this->reservations()->list($filters);
+    }
+    
+    /**
+     * Obter uma reserva específica (método de conveniência)
+     * 
+     * @param string $id ID da reserva
+     * @return \Innochannel\Sdk\Models\Booking
+     * @throws ApiException
+     */
+    public function getBooking(string $id): \Innochannel\Sdk\Models\Booking
+    {
+        return $this->reservations()->get($id);
+    }
+    
+    /**
+     * Criar uma nova reserva (método de conveniência)
+     * 
+     * @param array $data Dados da reserva
+     * @return \Innochannel\Sdk\Models\Booking
+     * @throws ApiException
+     */
+    public function createBooking(array $data): \Innochannel\Sdk\Models\Booking
+    {
+        return $this->reservations()->create($data);
+    }
+    
+    /**
+     * Atualizar uma reserva (método de conveniência)
+     * 
+     * @param string $id ID da reserva
+     * @param array $data Dados para atualização
+     * @return \Innochannel\Sdk\Models\Booking
+     * @throws ApiException
+     */
+    public function updateBooking(string $id, array $data): \Innochannel\Sdk\Models\Booking
+    {
+        return $this->reservations()->update($id, $data);
+    }
+    
+    /**
+     * Cancelar uma reserva (método de conveniência)
+     * 
+     * @param string $id ID da reserva
+     * @param array $options Opções de cancelamento
+     * @return bool
+     * @throws ApiException
+     */
+    public function cancelBooking(string $id, array $options = []): bool
+    {
+        return $this->reservations()->cancel($id, $options);
+    }
+    
+    /**
+     * Sincronizar reserva com PMS (método de conveniência)
+     * 
+     * @param string $id ID da reserva
+     * @param array $options Opções de sincronização
+     * @return array
+     * @throws ApiException
+     */
+    public function syncBookingWithPms(string $id, array $options = []): array
+    {
+        return $this->reservations()->syncWithPms($id, $options);
+    }
+    
+    /**
+     * Obter inventário (método de conveniência)
+     * 
+     * @param string $propertyId ID da propriedade
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getInventory(string $propertyId, array $filters = []): array
+    {
+        return $this->inventory()->getAvailability((int)$propertyId, $filters);
+    }
+    
+    /**
+     * Atualizar inventário (método de conveniência)
+     * 
+     * @param string $propertyId ID da propriedade
+     * @param array $data Dados do inventário
+     * @return array
+     * @throws ApiException
+     */
+    public function updateInventory(string $propertyId, array $data): array
+    {
+        return $this->inventory()->updateAvailability((int)$propertyId, $data);
+    }
+    
+    /**
+     * Sincronizar inventário com PMS (método de conveniência)
+     * 
+     * @param string $propertyId ID da propriedade
+     * @param array $options Opções de sincronização
+     * @return array
+     * @throws ApiException
+     */
+    public function syncInventoryWithPms(string $propertyId, array $options = []): array
+    {
+        return $this->inventory()->syncWithPms((int)$propertyId, $options);
+    }
+    
+    /**
+     * Registrar webhook (método de conveniência)
+     * 
+     * @param string $url URL do webhook
+     * @param array $events Eventos para escutar
+     * @return bool
+     * @throws ApiException
+     */
+    public function registerWebhook(string $url, array $events = []): bool
+    {
+        $webhookService = new \Innochannel\Sdk\Services\WebhookService($this);
+        $result = $webhookService->create(['url' => $url, 'events' => $events]);
+        return !empty($result);
+    }
+    
+    /**
+     * Cancelar registro de webhook (método de conveniência)
+     * 
+     * @param string $url URL do webhook
+     * @return bool
+     * @throws ApiException
+     */
+    public function unregisterWebhook(string $url): bool
+    {
+        $webhookService = new \Innochannel\Sdk\Services\WebhookService($this);
+        // Primeiro buscar o webhook pela URL
+        $webhooks = $webhookService->list(['url' => $url]);
+        if (!empty($webhooks)) {
+            foreach ($webhooks as $webhook) {
+                if (isset($webhook['url']) && $webhook['url'] === $url) {
+                    return $webhookService->delete($webhook['id']);
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Obter webhooks registrados (método de conveniência)
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getWebhooks(array $filters = []): array
+    {
+        $webhookService = new \Innochannel\Sdk\Services\WebhookService($this);
+        return $webhookService->list($filters);
+    }
+
+    // ========== RESERVATION SERVICE METHODS ==========
+
+    /**
+     * Criar uma nova reserva
+     * 
+     * @param array $bookingData Dados da reserva
+     * @return \Innochannel\Sdk\Models\Booking
+     * @throws ApiException
+     */
+    public function createReservation(array $bookingData): \Innochannel\Sdk\Models\Booking
+    {
+        return $this->reservations()->create($bookingData);
+    }
+
+    /**
+     * Obter uma reserva específica
+     * 
+     * @param string $bookingId ID da reserva
+     * @return \Innochannel\Sdk\Models\Booking
+     * @throws ApiException
+     */
+    public function getReservation(string $bookingId): \Innochannel\Sdk\Models\Booking
+    {
+        return $this->reservations()->get($bookingId);
+    }
+
+    /**
+     * Listar reservas
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getReservations(array $filters = []): array
+    {
+        return $this->reservations()->list($filters);
+    }
+
+    /**
+     * Atualizar uma reserva
+     * 
+     * @param string $bookingId ID da reserva
+     * @param array $updateData Dados para atualização
+     * @return \Innochannel\Sdk\Models\Booking
+     * @throws ApiException
+     */
+    public function updateReservation(string $bookingId, array $updateData): \Innochannel\Sdk\Models\Booking
+    {
+        return $this->reservations()->update($bookingId, $updateData);
+    }
+
+    /**
+     * Cancelar uma reserva
+     * 
+     * @param string $bookingId ID da reserva
+     * @param array $cancellationData Dados de cancelamento
+     * @return bool
+     * @throws ApiException
+     */
+    public function cancelReservation(string $bookingId, array $cancellationData = []): bool
+    {
+        return $this->reservations()->cancel($bookingId, $cancellationData);
+    }
+
+    /**
+     * Confirmar uma reserva
+     * 
+     * @param string $bookingId ID da reserva
+     * @param array $confirmationData Dados de confirmação
+     * @return \Innochannel\Sdk\Models\Booking
+     * @throws ApiException
+     */
+    public function confirmReservation(string $bookingId, array $confirmationData = []): \Innochannel\Sdk\Models\Booking
+    {
+        return $this->reservations()->confirm($bookingId, $confirmationData);
+    }
+
+    /**
+     * Modificar uma reserva
+     * 
+     * @param string $bookingId ID da reserva
+     * @param array $modificationData Dados de modificação
+     * @return \Innochannel\Sdk\Models\Booking
+     * @throws ApiException
+     */
+    public function modifyReservation(string $bookingId, array $modificationData): \Innochannel\Sdk\Models\Booking
+    {
+        return $this->reservations()->modify($bookingId, $modificationData);
+    }
+
+    /**
+     * Obter histórico de uma reserva
+     * 
+     * @param string $bookingId ID da reserva
+     * @return array
+     * @throws ApiException
+     */
+    public function getReservationHistory(string $bookingId): array
+    {
+        return $this->reservations()->getHistory($bookingId);
+    }
+
+    /**
+     * Sincronizar reserva com PMS
+     * 
+     * @param string $bookingId ID da reserva
+     * @param array $syncOptions Opções de sincronização
+     * @return array
+     * @throws ApiException
+     */
+    public function syncReservationWithPms(string $bookingId, array $syncOptions = []): array
+    {
+        return $this->reservations()->syncWithPms($bookingId, $syncOptions);
+    }
+
+    // ========== OTA CONNECTION SERVICE METHODS ==========
+
+    /**
+     * Listar conexões OTA
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getOtaConnections(array $filters = []): array
+    {
+        return $this->otaConnections()->list($filters);
+    }
+
+    /**
+     * Obter uma conexão OTA específica
+     * 
+     * @param string $connectionId ID da conexão
+     * @return array
+     * @throws ApiException
+     */
+    public function getOtaConnection(string $connectionId): array
+    {
+        return $this->otaConnections()->get($connectionId);
+    }
+
+    /**
+     * Criar uma nova conexão OTA
+     * 
+     * @param array $connectionData Dados da conexão
+     * @return array
+     * @throws ApiException
+     */
+    public function createOtaConnection(array $connectionData): array
+    {
+        return $this->otaConnections()->create($connectionData);
+    }
+
+    /**
+     * Atualizar uma conexão OTA
+     * 
+     * @param string $connectionId ID da conexão
+     * @param array $updateData Dados para atualização
+     * @return array
+     * @throws ApiException
+     */
+    public function updateOtaConnection(string $connectionId, array $updateData): array
+    {
+        return $this->otaConnections()->update($connectionId, $updateData);
+    }
+
+    /**
+     * Deletar uma conexão OTA
+     * 
+     * @param string $connectionId ID da conexão
+     * @return bool
+     * @throws ApiException
+     */
+    public function deleteOtaConnection(string $connectionId): bool
+    {
+        return $this->otaConnections()->delete($connectionId);
+    }
+
+    /**
+     * Testar conectividade com uma OTA
+     * 
+     * @param string $connectionId ID da conexão
+     * @return array
+     * @throws ApiException
+     */
+    public function testOtaConnection(string $connectionId): array
+    {
+        return $this->otaConnections()->testConnection($connectionId);
+    }
+
+    /**
+     * Sincronizar dados com uma OTA
+     * 
+     * @param string $connectionId ID da conexão
+     * @param array $syncOptions Opções de sincronização
+     * @return array
+     * @throws ApiException
+     */
+    public function syncOtaConnection(string $connectionId, array $syncOptions = []): array
+    {
+        return $this->otaConnections()->sync($connectionId, $syncOptions);
+    }
+
+    /**
+     * Obter status de uma conexão OTA
+     * 
+     * @param string $connectionId ID da conexão
+     * @return array
+     * @throws ApiException
+     */
+    public function getOtaConnectionStatus(string $connectionId): array
+    {
+        return $this->otaConnections()->getStatus($connectionId);
+    }
+
+    /**
+     * Ativar uma conexão OTA
+     * 
+     * @param string $connectionId ID da conexão
+     * @return bool
+     * @throws ApiException
+     */
+    public function activateOtaConnection(string $connectionId): bool
+    {
+        return $this->otaConnections()->activate($connectionId);
+    }
+
+    /**
+     * Desativar uma conexão OTA
+     * 
+     * @param string $connectionId ID da conexão
+     * @return bool
+     * @throws ApiException
+     */
+    public function deactivateOtaConnection(string $connectionId): bool
+    {
+        return $this->otaConnections()->deactivate($connectionId);
+    }
+
+    // ========== MONITORING SERVICE METHODS ==========
+
+    /**
+     * Obter métricas do sistema
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getMetrics(array $filters = []): array
+    {
+        return $this->monitoring()->getMetrics($filters);
+    }
+
+    /**
+     * Obter status de saúde do sistema
+     * 
+     * @return array
+     * @throws ApiException
+     */
+    public function getHealthStatus(): array
+    {
+        return $this->monitoring()->getHealthStatus();
+    }
+
+    /**
+     * Obter logs do sistema
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getLogs(array $filters = []): array
+    {
+        return $this->monitoring()->getLogs($filters);
+    }
+
+    /**
+     * Obter alertas ativos
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getAlerts(array $filters = []): array
+    {
+        return $this->monitoring()->getAlerts($filters);
+    }
+
+    /**
+     * Criar um novo alerta
+     * 
+     * @param array $alertData Dados do alerta
+     * @return array
+     * @throws ApiException
+     */
+    public function createAlert(array $alertData): array
+    {
+        return $this->monitoring()->createAlert($alertData);
+    }
+
+    /**
+     * Atualizar um alerta
+     * 
+     * @param string $alertId ID do alerta
+     * @param array $updateData Dados para atualização
+     * @return array
+     * @throws ApiException
+     */
+    public function updateAlert(string $alertId, array $updateData): array
+    {
+        return $this->monitoring()->updateAlert($alertId, $updateData);
+    }
+
+    /**
+     * Deletar um alerta
+     * 
+     * @param string $alertId ID do alerta
+     * @return bool
+     * @throws ApiException
+     */
+    public function deleteAlert(string $alertId): bool
+    {
+        return $this->monitoring()->deleteAlert($alertId);
+    }
+
+    /**
+     * Obter estatísticas de performance
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getPerformanceStats(array $filters = []): array
+    {
+        return $this->monitoring()->getPerformanceStats($filters);
+    }
+
+    /**
+     * Obter estatísticas de uso da API
+     * 
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getApiUsageStats(array $filters = []): array
+    {
+        return $this->monitoring()->getApiUsageStats($filters);
+    }
+
+    /**
+     * Executar diagnóstico do sistema
+     * 
+     * @param array $options Opções de diagnóstico
+     * @return array
+     * @throws ApiException
+     */
+    public function runDiagnostics(array $options = []): array
+    {
+        return $this->monitoring()->runDiagnostics($options);
+    }
+
+    /**
+     * Gerar relatório de monitoramento
+     * 
+     * @param string $reportType Tipo do relatório
+     * @param array $parameters Parâmetros do relatório
+     * @return array
+     * @throws ApiException
+     */
+    public function generateMonitoringReport(string $reportType, array $parameters = []): array
+    {
+        return $this->monitoring()->generateReport($reportType, $parameters);
+    }
+
+    // ========== PROPERTY SERVICE ADDITIONAL METHODS ==========
+
+    /**
+     * Criar um quarto para uma propriedade
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param array $roomData Dados do quarto
+     * @return \Innochannel\Sdk\Models\Room
+     * @throws ApiException
+     */
+    public function createRoom($propertyId, array $roomData): \Innochannel\Sdk\Models\Room
+    {
+        return $this->properties()->createRoom($propertyId, $roomData);
+    }
+
+    /**
+     * Listar quartos de uma propriedade
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getRooms($propertyId, array $filters = []): array
+    {
+        return $this->properties()->listRooms($propertyId, $filters);
+    }
+
+    /**
+     * Obter um quarto específico
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param int|string $roomId ID do quarto
+     * @return \Innochannel\Sdk\Models\Room
+     * @throws ApiException
+     */
+    public function getRoom($propertyId, $roomId): \Innochannel\Sdk\Models\Room
+    {
+        return $this->properties()->getRoom($propertyId, $roomId);
+    }
+
+    /**
+     * Atualizar um quarto
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param int|string $roomId ID do quarto
+     * @param array $roomData Dados para atualização
+     * @return \Innochannel\Sdk\Models\Room
+     * @throws ApiException
+     */
+    public function updateRoom($propertyId, $roomId, array $roomData): \Innochannel\Sdk\Models\Room
+    {
+        return $this->properties()->updateRoom($propertyId, $roomId, $roomData);
+    }
+
+    /**
+     * Deletar um quarto
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param int|string $roomId ID do quarto
+     * @return bool
+     * @throws ApiException
+     */
+    public function deleteRoom($propertyId, $roomId): bool
+    {
+        return $this->properties()->deleteRoom($propertyId, $roomId);
+    }
+
+    /**
+     * Criar um plano de tarifa
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param array $ratePlanData Dados do plano de tarifa
+     * @return \Innochannel\Sdk\Models\RatePlan
+     * @throws ApiException
+     */
+    public function createRatePlan($propertyId, array $ratePlanData): \Innochannel\Sdk\Models\RatePlan
+    {
+        return $this->properties()->createRatePlan($propertyId, $ratePlanData);
+    }
+
+    /**
+     * Listar planos de tarifa de uma propriedade
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getRatePlans($propertyId, array $filters = []): array
+    {
+        return $this->properties()->listRatePlans($propertyId, $filters);
+    }
+
+    /**
+     * Obter um plano de tarifa específico
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param int|string $ratePlanId ID do plano de tarifa
+     * @return \Innochannel\Sdk\Models\RatePlan
+     * @throws ApiException
+     */
+    public function getRatePlan($propertyId, $ratePlanId): \Innochannel\Sdk\Models\RatePlan
+    {
+        return $this->properties()->getRatePlan($propertyId, $ratePlanId);
+    }
+
+    /**
+     * Atualizar um plano de tarifa
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param int|string $ratePlanId ID do plano de tarifa
+     * @param array $ratePlanData Dados para atualização
+     * @return \Innochannel\Sdk\Models\RatePlan
+     * @throws ApiException
+     */
+    public function updateRatePlan($propertyId, $ratePlanId, array $ratePlanData): \Innochannel\Sdk\Models\RatePlan
+    {
+        return $this->properties()->updateRatePlan($propertyId, $ratePlanId, $ratePlanData);
+    }
+
+    /**
+     * Deletar um plano de tarifa
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param int|string $ratePlanId ID do plano de tarifa
+     * @return bool
+     * @throws ApiException
+     */
+    public function deleteRatePlan($propertyId, $ratePlanId): bool
+    {
+        return $this->properties()->deleteRatePlan($propertyId, $ratePlanId);
+    }
+
+    /**
+     * Testar conexão PMS
+     * 
+     * @param array $connectionData Dados da conexão
+     * @return array
+     * @throws ApiException
+     */
+    public function testPmsConnection(array $connectionData): array
+    {
+        return $this->properties()->testPmsConnection($connectionData);
+    }
+
+    /**
+     * Sincronizar propriedade com PMS
+     * 
+     * @param int|string $propertyId ID da propriedade
+     * @param array $syncOptions Opções de sincronização
+     * @return array
+     * @throws ApiException
+     */
+    public function syncPropertyWithPms($propertyId, array $syncOptions = []): array
+    {
+        return $this->properties()->syncWithPms($propertyId, $syncOptions);
+    }
+
+    // ========== INVENTORY SERVICE ADDITIONAL METHODS ==========
+
+    /**
+     * Atualizar disponibilidade
+     * 
+     * @param int $propertyId ID da propriedade
+     * @param array $availabilityData Dados de disponibilidade
+     * @return array
+     * @throws ApiException
+     */
+    public function updateAvailability(int $propertyId, array $availabilityData): array
+    {
+        return $this->inventory()->updateAvailability($propertyId, $availabilityData);
+    }
+
+    /**
+     * Obter disponibilidade
+     * 
+     * @param int $propertyId ID da propriedade
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getAvailability(int $propertyId, array $filters = []): array
+    {
+        return $this->inventory()->getAvailability($propertyId, $filters);
+    }
+
+    /**
+     * Atualizar tarifas
+     * 
+     * @param int $propertyId ID da propriedade
+     * @param array $rateData Dados de tarifas
+     * @return array
+     * @throws ApiException
+     */
+    public function updateRates(int $propertyId, array $rateData): array
+    {
+        return $this->inventory()->updateRates($propertyId, $rateData);
+    }
+
+    /**
+     * Obter tarifas
+     * 
+     * @param int $propertyId ID da propriedade
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getRates(int $propertyId, array $filters = []): array
+    {
+        return $this->inventory()->getRates($propertyId, $filters);
+    }
+
+    /**
+     * Atualizar inventário em lote
+     * 
+     * @param int $propertyId ID da propriedade
+     * @param array $batchData Dados em lote
+     * @return array
+     * @throws ApiException
+     */
+    public function updateInventoryBatch(int $propertyId, array $batchData): array
+    {
+        return $this->inventory()->updateBatch($propertyId, $batchData);
+    }
+
+    /**
+     * Obter calendário de inventário
+     * 
+     * @param int $propertyId ID da propriedade
+     * @param string $dateFrom Data inicial
+     * @param string $dateTo Data final
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getInventoryCalendar(int $propertyId, string $dateFrom, string $dateTo, array $filters = []): array
+    {
+        return $this->inventory()->getCalendar($propertyId, $dateFrom, $dateTo, $filters);
+    }
+
+    /**
+     * Definir restrições de inventário
+     * 
+     * @param int $propertyId ID da propriedade
+     * @param array $restrictionData Dados de restrições
+     * @return array
+     * @throws ApiException
+     */
+    public function setInventoryRestrictions(int $propertyId, array $restrictionData): array
+    {
+        return $this->inventory()->setRestrictions($propertyId, $restrictionData);
+    }
+
+    /**
+     * Obter restrições de inventário
+     * 
+     * @param int $propertyId ID da propriedade
+     * @param array $filters Filtros opcionais
+     * @return array
+     * @throws ApiException
+     */
+    public function getInventoryRestrictions(int $propertyId, array $filters = []): array
+    {
+        return $this->inventory()->getRestrictions($propertyId, $filters);
+    }
+    
+    /**
      * Fazer requisição HTTP
      * 
      * @param string $method

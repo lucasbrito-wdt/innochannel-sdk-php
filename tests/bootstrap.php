@@ -146,14 +146,14 @@ class TestHelper
     /**
      * Gera dados de reserva para testes
      */
-    public static function createBookingData(array $overrides = []): array
+    public static function createReservationData(array $overrides = []): array
     {
         $checkIn = date('Y-m-d', strtotime('+' . rand(1, 30) . ' days'));
         $checkOut = date('Y-m-d', strtotime($checkIn . ' +' . rand(1, 7) . ' days'));
         $nights = (strtotime($checkOut) - strtotime($checkIn)) / (60 * 60 * 24);
         
         return array_merge([
-            'id' => 'booking-' . uniqid(),
+            'id' => 'reservation-' . uniqid(),
             'propertyId' => 'prop-123',
             'roomId' => 'room-123',
             'ratePlanId' => 'rate-123',
@@ -206,8 +206,8 @@ class TestHelper
             'restrictions' => [
                 'minStay' => rand(1, 3),
                 'maxStay' => rand(7, 30),
-                'minAdvanceBooking' => 0,
-                'maxAdvanceBooking' => 365
+                'minAdvanceReservation' => 0,
+                'maxAdvanceReservation' => 365
             ],
             'cancellationPolicy' => [
                 'type' => 'flexible',

@@ -96,8 +96,8 @@ class PropertyServiceTest extends TestCase
             'restrictions' => [
                 'min_stay' => 1,
                 'max_stay' => 30,
-                'min_advance_booking' => 0,
-                'max_advance_booking' => 365
+                'min_advance_reservation' => 0,
+                'max_advance_reservation' => 365
             ],
             'cancellation_policy' => [
                 'type' => 'flexible',
@@ -464,8 +464,8 @@ class PropertyServiceTest extends TestCase
             'restrictions' => [
                 'minStay' => 1,
                 'maxStay' => 30,
-                'minAdvanceBooking' => 0,
-                'maxAdvanceBooking' => 365
+                'minAdvanceReservation' => 0,
+                'maxAdvanceReservation' => 365
             ],
             'cancellationPolicy' => [
                 'type' => 'flexible',
@@ -503,8 +503,8 @@ class PropertyServiceTest extends TestCase
             'restrictions' => [
                 'minStay' => 0, // Estadia mínima inválida
                 'maxStay' => -1,
-                'minAdvanceBooking' => -1,
-                'maxAdvanceBooking' => -1
+                'minAdvanceReservation' => -1,
+                'maxAdvanceReservation' => -1
             ],
             'cancellationPolicy' => [
                 'type' => 'invalid',

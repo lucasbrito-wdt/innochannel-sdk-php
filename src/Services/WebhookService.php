@@ -238,10 +238,10 @@ class WebhookService
             $errors['events'] = ['Events must be an array'];
         } else {
             $validEvents = [
-                'booking.created',
-                'booking.updated',
-                'booking.cancelled',
-                'booking.confirmed',
+                'reservation.created',
+            'reservation.updated',
+            'reservation.cancelled',
+            'reservation.confirmed',
                 'inventory.updated',
                 'rates.updated',
                 'property.updated',
@@ -295,10 +295,10 @@ class WebhookService
                 $errors['events'] = ['Events must be an array'];
             } else {
                 $validEvents = [
-                    'booking.created',
-                    'booking.updated',
-                    'booking.cancelled',
-                    'booking.confirmed',
+                    'reservation.created',
+            'reservation.updated',
+            'reservation.cancelled',
+            'reservation.confirmed',
                     'inventory.updated',
                     'rates.updated',
                     'property.updated',

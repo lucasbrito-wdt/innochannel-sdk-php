@@ -8,22 +8,23 @@ use DateTime;
 use DateTimeInterface;
 use JsonSerializable;
 use Innochannel\Sdk\Traits\HasEvents;
-use Innochannel\Sdk\Events\Models\BookingCreated;
-use Innochannel\Sdk\Events\Models\BookingUpdated;
-use Innochannel\Sdk\Events\Models\BookingConfirmed;
-use Innochannel\Sdk\Events\Models\BookingCancelled;
-use Innochannel\Sdk\Events\Models\BookingDeleted;
+use Innochannel\Sdk\Events\Models\ReservationCreated;
+use Innochannel\Sdk\Events\Models\ReservationUpdated;
+use Innochannel\Sdk\Events\Models\ReservationConfirmed;
+use Innochannel\Sdk\Events\Models\ReservationCancelled;
+use Innochannel\Sdk\Events\Models\ReservationDeleted;
 
 /**
- * Modelo de reserva
+ * Represents a reservation in the Innochannel system.
  * 
- * Representa uma reserva no sistema Innochannel
+ * This class handles reservation data and provides methods for
+ * creating, updating, and managing reservations.
  * 
  * @package Innochannel\Sdk\Models
  * @author Innochannel SDK Team
  * @version 1.0.0
  */
-class Booking
+class Reservation implements JsonSerializable
 {
     use HasEvents;
     private ?string $id = null;
@@ -56,7 +57,7 @@ class Booking
     private array $originalData = [];
     
     /**
-     * Construtor da classe Booking
+     * Construtor da classe Reservation
      * 
      * @param array<string, mixed> $data Dados para inicializar a reserva
      */
@@ -66,7 +67,7 @@ class Booking
         
         if (!empty($data)) {
             $this->fillFromArray($data);
-            $this->fireEvent(new BookingCreated($this));
+            $this->fireEvent(new ReservationCreated($this));
         }
     }
     
@@ -74,7 +75,7 @@ class Booking
      * Criar instância a partir de array
      * 
      * @param array<string, mixed> $data Dados da reserva
-     * @return static Nova instância de Booking
+     * @return static Nova instância de Reservation
      */
     public static function fromArray(array $data): self
     {
@@ -166,7 +167,7 @@ class Booking
          // Disparar evento de atualização se houve mudanças
          $newData = $this->toArray();
          if ($originalData !== $newData && !empty($originalData)) {
-             $this->fireEvent(new BookingUpdated($this, $originalData, $newData));
+             $this->fireEvent(new ReservationUpdated($this, $originalData, $newData));
          }
          return $this;
      }
@@ -181,7 +182,7 @@ class Booking
      {
          $newData = $this->toArray();
          if ($originalData !== $newData && !empty($originalData)) {
-             $this->fireEvent(new BookingUpdated($this, $originalData, $newData));
+             $this->fireEvent(new ReservationUpdated($this, $originalData, $newData));
          }
     }
     
@@ -230,7 +231,7 @@ class Booking
     public function getPropertyId(): ?string { return $this->propertyId; }
     public function getRoomId(): ?string { return $this->roomId; }
     public function getRatePlanId(): ?string { return $this->ratePlanId; }
-    public function getBookingReference(): ?string { return $this->bookingReference; }
+    public function getReservationReference(): ?string { return $this->bookingReference; }
     public function getPmsBookingId(): ?string { return $this->pmsBookingId; }
     public function getOtaBookingId(): ?string { return $this->otaBookingId; }
     public function getChannelCode(): ?string { return $this->channelCode; }
@@ -259,7 +260,7 @@ class Booking
         $old = $this->id;
         $this->id = $id; 
         if ($old !== $id) {
-            $this->fireEvent(new BookingUpdated($this, ['id' => $old], ['id' => $id]));
+            $this->fireEvent(new ReservationUpdated($this, ['id' => $old], ['id' => $id]));
         }
         return $this; 
     }
@@ -268,7 +269,7 @@ class Booking
         $old = $this->propertyId;
         $this->propertyId = $propertyId; 
         if ($old !== $propertyId) {
-            $this->fireEvent(new BookingUpdated($this, ['property_id' => $old], ['property_id' => $propertyId]));
+            $this->fireEvent(new ReservationUpdated($this, ['property_id' => $old], ['property_id' => $propertyId]));
         }
         return $this; 
     }
@@ -277,7 +278,7 @@ class Booking
         $old = $this->roomId;
         $this->roomId = $roomId; 
         if ($old !== $roomId) {
-            $this->fireEvent(new BookingUpdated($this, ['room_id' => $old], ['room_id' => $roomId]));
+            $this->fireEvent(new ReservationUpdated($this, ['room_id' => $old], ['room_id' => $roomId]));
         }
         return $this; 
     }
@@ -286,25 +287,25 @@ class Booking
         $old = $this->ratePlanId;
         $this->ratePlanId = $ratePlanId; 
         if ($old !== $ratePlanId) {
-            $this->fireEvent(new BookingUpdated($this, ['rate_plan_id' => $old], ['rate_plan_id' => $ratePlanId]));
+            $this->fireEvent(new ReservationUpdated($this, ['rate_plan_id' => $old], ['rate_plan_id' => $ratePlanId]));
         }
         return $this; 
     }
     
-    public function setBookingReference(?string $bookingReference): self { 
+    public function setReservationReference(?string $reservationReference): self {
         $old = $this->bookingReference;
-        $this->bookingReference = $bookingReference; 
-        if ($old !== $bookingReference) {
-            $this->fireEvent(new BookingUpdated($this, ['booking_reference' => $old], ['booking_reference' => $bookingReference]));
+        $this->bookingReference = $reservationReference;
+        if ($old !== $reservationReference) {
+            $this->fireEvent(new ReservationUpdated($this, ['booking_reference' => $old], ['booking_reference' => $reservationReference]));
         }
-        return $this; 
+        return $this;
     }
     
     public function setPmsBookingId(?string $pmsBookingId): self { 
         $old = $this->pmsBookingId;
         $this->pmsBookingId = $pmsBookingId; 
         if ($old !== $pmsBookingId) {
-            $this->fireEvent(new BookingUpdated($this, ['pms_booking_id' => $old], ['pms_booking_id' => $pmsBookingId]));
+            $this->fireEvent(new ReservationUpdated($this, ['pms_booking_id' => $old], ['pms_booking_id' => $pmsBookingId]));
         }
         return $this; 
     }
@@ -313,7 +314,7 @@ class Booking
         $old = $this->otaBookingId;
         $this->otaBookingId = $otaBookingId; 
         if ($old !== $otaBookingId) {
-            $this->fireEvent(new BookingUpdated($this, ['ota_booking_id' => $old], ['ota_booking_id' => $otaBookingId]));
+            $this->fireEvent(new ReservationUpdated($this, ['ota_booking_id' => $old], ['ota_booking_id' => $otaBookingId]));
         }
         return $this; 
     }
@@ -322,7 +323,7 @@ class Booking
         $old = $this->channelCode;
         $this->channelCode = $channelCode; 
         if ($old !== $channelCode) {
-            $this->fireEvent(new BookingUpdated($this, ['channel_code' => $old], ['channel_code' => $channelCode]));
+            $this->fireEvent(new ReservationUpdated($this, ['channel_code' => $old], ['channel_code' => $channelCode]));
         }
         return $this; 
     }
@@ -331,7 +332,7 @@ class Booking
         $old = $this->checkIn;
         $this->checkIn = $checkIn; 
         if ($old !== $checkIn) {
-            $this->fireEvent(new BookingUpdated($this, ['check_in' => $old], ['check_in' => $checkIn]));
+            $this->fireEvent(new ReservationUpdated($this, ['check_in' => $old], ['check_in' => $checkIn]));
         }
         return $this; 
     }
@@ -340,7 +341,7 @@ class Booking
         $old = $this->checkOut;
         $this->checkOut = $checkOut; 
         if ($old !== $checkOut) {
-            $this->fireEvent(new BookingUpdated($this, ['check_out' => $old], ['check_out' => $checkOut]));
+            $this->fireEvent(new ReservationUpdated($this, ['check_out' => $old], ['check_out' => $checkOut]));
         }
         return $this; 
     }
@@ -349,7 +350,7 @@ class Booking
         $old = $this->adults;
         $this->adults = $adults; 
         if ($old !== $adults) {
-            $this->fireEvent(new BookingUpdated($this, ['adults' => $old], ['adults' => $adults]));
+            $this->fireEvent(new ReservationUpdated($this, ['adults' => $old], ['adults' => $adults]));
         }
         return $this; 
     }
@@ -358,7 +359,7 @@ class Booking
         $old = $this->children;
         $this->children = $children; 
         if ($old !== $children) {
-            $this->fireEvent(new BookingUpdated($this, ['children' => $old], ['children' => $children]));
+            $this->fireEvent(new ReservationUpdated($this, ['children' => $old], ['children' => $children]));
         }
         return $this; 
     }
@@ -367,7 +368,7 @@ class Booking
         $old = $this->nights;
         $this->nights = $nights; 
         if ($old !== $nights) {
-            $this->fireEvent(new BookingUpdated($this, ['nights' => $old], ['nights' => $nights]));
+            $this->fireEvent(new ReservationUpdated($this, ['nights' => $old], ['nights' => $nights]));
         }
         return $this; 
     }
@@ -376,7 +377,7 @@ class Booking
         $old = $this->guest;
         $this->guest = $guest; 
         if ($old !== $guest) {
-            $this->fireEvent(new BookingUpdated($this, ['guest' => $old], ['guest' => $guest]));
+            $this->fireEvent(new ReservationUpdated($this, ['guest' => $old], ['guest' => $guest]));
         }
         return $this; 
     }
@@ -385,7 +386,7 @@ class Booking
         $old = $this->additionalGuests;
         $this->additionalGuests = $additionalGuests; 
         if ($old !== $additionalGuests) {
-            $this->fireEvent(new BookingUpdated($this, ['additional_guests' => $old], ['additional_guests' => $additionalGuests]));
+            $this->fireEvent(new ReservationUpdated($this, ['additional_guests' => $old], ['additional_guests' => $additionalGuests]));
         }
         return $this; 
     }
@@ -395,13 +396,13 @@ class Booking
         $this->status = $status; 
         
         if ($old !== $status) {
-            $this->fireEvent(new BookingUpdated($this, ['status' => $old], ['status' => $status]));
+            $this->fireEvent(new ReservationUpdated($this, ['status' => $old], ['status' => $status]));
             
             // Disparar eventos específicos baseados no status
             if ($status === 'confirmed') {
-                $this->fireEvent(new BookingConfirmed($this));
+                $this->fireEvent(new ReservationConfirmed($this));
             } elseif ($status === 'cancelled') {
-                $this->fireEvent(new BookingCancelled($this));
+                $this->fireEvent(new ReservationCancelled($this));
             }
         }
         
@@ -412,7 +413,7 @@ class Booking
         $old = $this->totalAmount;
         $this->totalAmount = $totalAmount; 
         if ($old !== $totalAmount) {
-            $this->fireEvent(new BookingUpdated($this, ['total_amount' => $old], ['total_amount' => $totalAmount]));
+            $this->fireEvent(new ReservationUpdated($this, ['total_amount' => $old], ['total_amount' => $totalAmount]));
         }
         return $this; 
     }
@@ -421,7 +422,7 @@ class Booking
         $old = $this->currency;
         $this->currency = $currency; 
         if ($old !== $currency) {
-            $this->fireEvent(new BookingUpdated($this, ['currency' => $old], ['currency' => $currency]));
+            $this->fireEvent(new ReservationUpdated($this, ['currency' => $old], ['currency' => $currency]));
         }
         return $this; 
     }
@@ -430,7 +431,7 @@ class Booking
         $old = $this->breakdown;
         $this->breakdown = $breakdown; 
         if ($old !== $breakdown) {
-            $this->fireEvent(new BookingUpdated($this, ['breakdown' => $old], ['breakdown' => $breakdown]));
+            $this->fireEvent(new ReservationUpdated($this, ['breakdown' => $old], ['breakdown' => $breakdown]));
         }
         return $this; 
     }
@@ -439,7 +440,7 @@ class Booking
         $old = $this->services;
         $this->services = $services; 
         if ($old !== $services) {
-            $this->fireEvent(new BookingUpdated($this, ['services' => $old], ['services' => $services]));
+            $this->fireEvent(new ReservationUpdated($this, ['services' => $old], ['services' => $services]));
         }
         return $this; 
     }
@@ -448,7 +449,7 @@ class Booking
         $old = $this->specialRequests;
         $this->specialRequests = $specialRequests; 
         if ($old !== $specialRequests) {
-            $this->fireEvent(new BookingUpdated($this, ['special_requests' => $old], ['special_requests' => $specialRequests]));
+            $this->fireEvent(new ReservationUpdated($this, ['special_requests' => $old], ['special_requests' => $specialRequests]));
         }
         return $this; 
     }
@@ -457,7 +458,7 @@ class Booking
         $old = $this->policies;
         $this->policies = $policies; 
         if ($old !== $policies) {
-            $this->fireEvent(new BookingUpdated($this, ['policies' => $old], ['policies' => $policies]));
+            $this->fireEvent(new ReservationUpdated($this, ['policies' => $old], ['policies' => $policies]));
         }
         return $this; 
     }
@@ -466,7 +467,7 @@ class Booking
         $old = $this->paymentInfo;
         $this->paymentInfo = $paymentInfo; 
         if ($old !== $paymentInfo) {
-            $this->fireEvent(new BookingUpdated($this, ['payment_info' => $old], ['payment_info' => $paymentInfo]));
+            $this->fireEvent(new ReservationUpdated($this, ['payment_info' => $old], ['payment_info' => $paymentInfo]));
         }
         return $this; 
     }
@@ -475,20 +476,20 @@ class Booking
         $old = $this->cancellationReason;
         $this->cancellationReason = $cancellationReason; 
         if ($old !== $cancellationReason) {
-            $this->fireEvent(new BookingUpdated($this, ['cancellation_reason' => $old], ['cancellation_reason' => $cancellationReason]));
+            $this->fireEvent(new ReservationUpdated($this, ['cancellation_reason' => $old], ['cancellation_reason' => $cancellationReason]));
         }
         return $this; 
     }
     
     /**
-     * Método para deletar a reserva (dispara evento)
-     * 
-     * @return void
-     */
-    public function delete(): void
-    {
-        $this->fireEvent(new BookingDeleted($this));
-    }
+      * Método para deletar a reserva (dispara evento)
+      * 
+      * @return void
+      */
+     public function delete(): void
+     {
+         $this->fireEvent(new ReservationDeleted($this));
+     }
     
     // Métodos utilitários
     
