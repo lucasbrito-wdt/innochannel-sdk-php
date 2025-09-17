@@ -98,8 +98,12 @@ class InnochannelServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(__DIR__ . '/resources/lang', 'innochannel');
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
-        $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
+        if (file_exists(__DIR__ . '/routes/web.php')) {
+            $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
+        }
+        if (file_exists(__DIR__ . '/routes/api.php')) {
+            $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
+        }
 
         // Register middleware
         $this->app['router']->aliasMiddleware('innochannel.auth', InnochannelAuth::class);
