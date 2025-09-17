@@ -13,7 +13,7 @@ class TestConnectionCommand extends Command
      */
     protected $signature = 'innochannel:test-connection 
                             {--timeout=30 : Connection timeout in seconds}
-                            {--verbose : Show detailed connection information}';
+                            {--detailed : Show detailed connection information}';
 
     /**
      * The console command description.
@@ -69,7 +69,7 @@ class TestConnectionCommand extends Command
                 $missingConfigs[] = $name;
                 $this->error("✗ {$name} is not configured");
             } else {
-                if ($this->option('verbose')) {
+                if ($this->option('detailed')) {
                     $maskedValue = $this->maskSensitiveValue($config, $value);
                     $this->info("✓ {$name}: {$maskedValue}");
                 } else {
@@ -103,7 +103,7 @@ class TestConnectionCommand extends Command
             
             $this->info('✓ API connection successful');
             
-            if ($this->option('verbose')) {
+            if ($this->option('detailed')) {
                 $this->info("  Response received with " . count($properties) . " properties");
             }
 
@@ -113,7 +113,7 @@ class TestConnectionCommand extends Command
             $this->error('✗ API connection failed');
             $this->error("  Error: {$e->getMessage()}");
             
-            if ($this->option('verbose')) {
+            if ($this->option('detailed')) {
                 $this->error("  Exception: " . get_class($e));
                 $this->error("  File: {$e->getFile()}:{$e->getLine()}");
             }
@@ -143,7 +143,7 @@ class TestConnectionCommand extends Command
                 $result = $test();
                 $this->info("✓ {$name} endpoint working");
                 
-                if ($this->option('verbose')) {
+                if ($this->option('detailed')) {
                     $count = is_array($result) ? count($result) : 'N/A';
                     $this->info("  Returned {$count} items");
                 }
