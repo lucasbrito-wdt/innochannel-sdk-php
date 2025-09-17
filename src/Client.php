@@ -37,7 +37,7 @@ class Client
     private const DEFAULT_BASE_URL = 'https://api.innotel.com.br';
     private const DEFAULT_TIMEOUT = 30;
     private const DEFAULT_CONNECT_TIMEOUT = 10;
-    
+
     private AuthenticationInterface $auth;
     private LoggerInterface $logger;
     private string $baseUrl;
@@ -45,14 +45,14 @@ class Client
     private int $retryDelay;
     private int $timeout;
     private int $connectTimeout;
-    
+
     // Services
     private ?PropertyService $propertyService = null;
     private ?InventoryService $inventoryService = null;
     private ?ReservationService $reservationService = null;
     private ?OtaConnectionService $otaConnectionService = null;
     private ?MonitoringService $monitoringService = null;
-    
+
     /**
      * @param array $config Configuração do cliente
      * @throws ValidationException
@@ -60,14 +60,14 @@ class Client
     public function __construct(array $config = [])
     {
         $this->validateConfig($config);
-        
+
         $this->baseUrl = $config['base_url'] ?? self::DEFAULT_BASE_URL;
         $this->logger = $config['logger'] ?? new NullLogger();
         $this->retryAttempts = $config['retry_attempts'] ?? 0;
         $this->retryDelay = $config['retry_delay'] ?? 1000;
         $this->timeout = $config['timeout'] ?? self::DEFAULT_TIMEOUT;
         $this->connectTimeout = $config['connect_timeout'] ?? self::DEFAULT_CONNECT_TIMEOUT;
-        
+
         // Configurar autenticação
         $this->auth = $this->createAuthentication($config);
     }
@@ -80,10 +80,10 @@ class Client
         if ($this->propertyService === null) {
             $this->propertyService = new PropertyService($this);
         }
-        
+
         return $this->propertyService;
     }
-    
+
     /**
      * Serviço de inventário (disponibilidade e tarifas)
      */
@@ -92,10 +92,10 @@ class Client
         if ($this->inventoryService === null) {
             $this->inventoryService = new InventoryService($this);
         }
-        
+
         return $this->inventoryService;
     }
-    
+
     /**
      * Serviço de reservas
      */
@@ -104,10 +104,10 @@ class Client
         if ($this->reservationService === null) {
             $this->reservationService = new ReservationService($this);
         }
-        
+
         return $this->reservationService;
     }
-    
+
     /**
      * Serviço de conexões OTA
      */
@@ -116,10 +116,10 @@ class Client
         if ($this->otaConnectionService === null) {
             $this->otaConnectionService = new OtaConnectionService($this);
         }
-        
+
         return $this->otaConnectionService;
     }
-    
+
     /**
      * Serviço de monitoramento
      */
@@ -128,10 +128,10 @@ class Client
         if ($this->monitoringService === null) {
             $this->monitoringService = new MonitoringService($this);
         }
-        
+
         return $this->monitoringService;
     }
-    
+
     /**
      * Obter propriedades (método de conveniência)
      * 
@@ -143,7 +143,7 @@ class Client
     {
         return $this->properties()->list($filters);
     }
-    
+
     /**
      * Obter uma propriedade específica (método de conveniência)
      * 
@@ -155,7 +155,7 @@ class Client
     {
         return $this->properties()->get($id);
     }
-    
+
     /**
      * Atualizar uma propriedade (método de conveniência)
      * 
@@ -168,7 +168,7 @@ class Client
     {
         return $this->properties()->update($id, $data);
     }
-    
+
     /**
      * Obter reservas (método de conveniência)
      * 
@@ -180,7 +180,7 @@ class Client
     {
         return $this->reservations()->list($filters);
     }
-    
+
     /**
      * Obter uma reserva específica (método de conveniência)
      * 
@@ -192,7 +192,7 @@ class Client
     {
         return $this->reservations()->get($id);
     }
-    
+
     /**
      * Criar uma nova reserva (método de conveniência)
      * 
@@ -204,7 +204,7 @@ class Client
     {
         return $this->reservations()->create($data);
     }
-    
+
     /**
      * Atualizar uma reserva (método de conveniência)
      * 
@@ -217,7 +217,7 @@ class Client
     {
         return $this->reservations()->update($id, $data);
     }
-    
+
     /**
      * Cancelar uma reserva (método de conveniência)
      * 
@@ -230,7 +230,7 @@ class Client
     {
         return $this->reservations()->cancel($id, $options);
     }
-    
+
     /**
      * Sincronizar reserva com PMS (método de conveniência)
      * 
@@ -243,7 +243,7 @@ class Client
     {
         return $this->reservations()->syncWithPms($id, $options);
     }
-    
+
     /**
      * Obter inventário (método de conveniência)
      * 
@@ -256,7 +256,7 @@ class Client
     {
         return $this->inventory()->getAvailability((int)$propertyId, $filters);
     }
-    
+
     /**
      * Atualizar inventário (método de conveniência)
      * 
@@ -269,7 +269,7 @@ class Client
     {
         return $this->inventory()->updateAvailability((int)$propertyId, $data);
     }
-    
+
     /**
      * Sincronizar inventário com PMS (método de conveniência)
      * 
@@ -282,7 +282,7 @@ class Client
     {
         return $this->inventory()->syncWithPms((int)$propertyId, $options);
     }
-    
+
     /**
      * Registrar webhook (método de conveniência)
      * 
@@ -297,7 +297,7 @@ class Client
         $result = $webhookService->create(['url' => $url, 'events' => $events]);
         return !empty($result);
     }
-    
+
     /**
      * Cancelar registro de webhook (método de conveniência)
      * 
@@ -319,7 +319,7 @@ class Client
         }
         return false;
     }
-    
+
     /**
      * Obter webhooks registrados (método de conveniência)
      * 
@@ -985,7 +985,7 @@ class Client
     {
         return $this->inventory()->getRestrictions($propertyId, $filters);
     }
-    
+
     /**
      * Fazer requisição HTTP
      * 
@@ -1009,7 +1009,7 @@ class Client
     {
         $attempt = 0;
         $maxAttempts = $this->retryAttempts + 1;
-        
+
         while ($attempt < $maxAttempts) {
             try {
                 // Ensure default headers are always present
@@ -1018,29 +1018,29 @@ class Client
                     'Content-Type' => 'application/json',
                     'User-Agent' => 'Innochannel-PHP-SDK/1.0',
                 ];
-                
+
                 // Merge default headers with any provided headers
                 $headers = array_merge($defaultHeaders, $options['headers'] ?? []);
-                
+
                 // Adicionar autenticação
                 $authOptions = $this->auth->authenticate(['headers' => $headers]);
                 $headers = $authOptions['headers'];
-                
+
                 $this->logger->debug('Making API request', [
                     'method' => $method,
                     'endpoint' => $endpoint,
                     'attempt' => $attempt + 1,
                     'options' => $this->sanitizeLogOptions(['headers' => $headers])
                 ]);
-                
+
                 // Construir URL completa
                 $url = rtrim($this->baseUrl, '/') . '/' . ltrim($endpoint, '/');
-                
+
                 // Configurar o cliente HTTP do Laravel
                 $httpClient = Http::withHeaders($headers)
                     ->timeout($this->timeout)
                     ->connectTimeout($this->connectTimeout);
-                
+
                 // Fazer a requisição baseada no método
                 $response = match (strtoupper($method)) {
                     'GET' => $httpClient->get($url, $options['query'] ?? []),
@@ -1050,43 +1050,42 @@ class Client
                     'DELETE' => $httpClient->delete($url),
                     default => throw new ApiException("Unsupported HTTP method: {$method}")
                 };
-                
+
                 $statusCode = $response->status();
                 $body = $response->body();
-                
+
                 $this->logger->debug('API response received', [
                     'status_code' => $statusCode,
                     'body_length' => strlen($body)
                 ]);
-                
+
                 if ($statusCode >= 400) {
                     $this->handleErrorResponse($statusCode, $body);
                 }
-                
+
                 // Handle empty responses (e.g., 204 No Content)
                 if (empty($body)) {
                     return null;
                 }
-                
+
                 $data = $response->json();
-                
+
                 if ($data === null && !empty($body)) {
                     throw new ApiException('Invalid JSON response');
                 }
-                
+
                 return $data;
-                
             } catch (RequestException $e) {
                 $attempt++;
-                
+
                 $statusCode = $e->response ? $e->response->status() : 0;
                 $body = $e->response ? $e->response->body() : '';
-                
+
                 // Don't retry authentication errors or validation errors
                 if ($statusCode === 401 || $statusCode === 422) {
                     $this->handleErrorResponse($statusCode, $body);
                 }
-                
+
                 // Check if we should retry for other errors
                 if ($attempt < $maxAttempts && $this->shouldRetry($statusCode)) {
                     $this->logger->warning('Request failed, retrying', [
@@ -1096,28 +1095,27 @@ class Client
                         'error' => $e->getMessage(),
                         'retry_delay' => $this->retryDelay
                     ]);
-                    
+
                     // Wait before retrying
                     usleep($this->retryDelay * 1000); // Convert to microseconds
                     continue;
                 }
-                
+
                 // If we can't retry or max attempts reached, handle the error
                 if ($statusCode > 0) {
                     $this->handleErrorResponse($statusCode, $body);
                 }
-                
+
                 $this->logger->error('HTTP request failed', [
                     'method' => $method,
                     'endpoint' => $endpoint,
                     'error' => $e->getMessage()
                 ]);
-                
+
                 throw new ApiException('HTTP request failed: ' . $e->getMessage(), 0, $e);
-                
             } catch (\Exception $e) {
                 $attempt++;
-                
+
                 // Check if we should retry for other types of exceptions
                 if ($attempt < $maxAttempts) {
                     $this->logger->warning('Request failed, retrying', [
@@ -1127,25 +1125,25 @@ class Client
                         'error' => $e->getMessage(),
                         'retry_delay' => $this->retryDelay
                     ]);
-                    
+
                     // Wait before retrying
                     usleep($this->retryDelay * 1000); // Convert to microseconds
                     continue;
                 }
-                
+
                 $this->logger->error('HTTP request failed', [
                     'method' => $method,
                     'endpoint' => $endpoint,
                     'error' => $e->getMessage()
                 ]);
-                
+
                 throw new ApiException('HTTP request failed: ' . $e->getMessage(), 0, $e);
             }
         }
-        
+
         throw new ApiException('Request failed after all retry attempts');
     }
-    
+
     /**
      * Fazer requisição GET
      */
@@ -1155,10 +1153,10 @@ class Client
         if (!empty($query)) {
             $options['query'] = $query;
         }
-        
+
         return $this->request('GET', $endpoint, $options);
     }
-    
+
     /**
      * Fazer requisição POST
      */
@@ -1168,10 +1166,10 @@ class Client
         if (!empty($data)) {
             $options['json'] = $data;
         }
-        
+
         return $this->request('POST', $endpoint, $options);
     }
-    
+
     /**
      * Fazer requisição PUT
      */
@@ -1181,26 +1179,26 @@ class Client
         if (!empty($data)) {
             $options['json'] = $data;
         }
-        
+
         return $this->request('PUT', $endpoint, $options);
     }
-    
+
     /**
      * Fazer requisição DELETE
      */
     public function delete(string $endpoint)
     {
         $result = $this->request('DELETE', $endpoint);
-        
+
         // If there's content in the response, return it
         if ($result !== null && !empty($result)) {
             return $result;
         }
-        
+
         // Otherwise return true for successful deletion
         return true;
     }
-    
+
     /**
      * Fazer requisição PATCH
      */
@@ -1210,10 +1208,10 @@ class Client
         if (!empty($data)) {
             $options['json'] = $data;
         }
-        
+
         return $this->request('PATCH', $endpoint, $options);
     }
-    
+
     /**
      * Obter logger
      */
@@ -1221,7 +1219,7 @@ class Client
     {
         return $this->logger;
     }
-    
+
     /**
      * Obter URL base
      */
@@ -1229,7 +1227,7 @@ class Client
     {
         return $this->baseUrl;
     }
-    
+
     /**
      * Validar configuração
      * 
@@ -1237,31 +1235,37 @@ class Client
      */
     private function validateConfig(array $config): void
     {
-        if (empty($config['api_key']) && empty($config['auth'])) {
-            throw new ValidationException('API key or custom authentication is required');
+        if (isset($config['api_key'])) {
+            throw new ValidationException('API key is required');
         }
-        
+
+        if (isset($config['api_secret'])) {
+            throw new ValidationException('API Secret is required');
+        }
+
         if (!empty($config['base_url']) && !filter_var($config['base_url'], FILTER_VALIDATE_URL)) {
             throw new ValidationException('Invalid base URL provided');
         }
     }
-    
+
     /**
      * Criar instância de autenticação
      */
     private function createAuthentication(array $config): AuthenticationInterface
     {
-        if (isset($config['auth']) && $config['auth'] instanceof AuthenticationInterface) {
-            return $config['auth'];
-        }
-        
         if (isset($config['api_key'])) {
-            return new ApiKeyAuthentication($config['api_key']);
+            $apiKey = $config['api_key'] ?? '';
+            return new ApiKeyAuthentication($config['api_key'], $apiKey);
         }
-        
+
+        if (isset($config['api_secret'])) {
+            $apiSecret = $config['api_secret'] ?? '';
+            return new ApiKeyAuthentication($config['api_secret'], $apiSecret);
+        }
+
         throw new ValidationException('No valid authentication method provided');
     }
-    
+
     /**
      * Tratar resposta de erro
      * 
@@ -1273,13 +1277,13 @@ class Client
         $data = json_decode($body, true);
         $message = $data['message'] ?? 'Unknown error';
         $errors = $data['errors'] ?? [];
-        
+
         $this->logger->error('API error response', [
             'status_code' => $statusCode,
             'message' => $message,
             'errors' => $errors
         ]);
-        
+
         switch ($statusCode) {
             case 400:
             case 422:
@@ -1296,23 +1300,23 @@ class Client
                 throw new ApiException($message, $statusCode);
         }
     }
-    
+
     /**
      * Sanitizar opções para log (remover dados sensíveis)
      */
     private function sanitizeLogOptions(array $options): array
     {
         $sanitized = $options;
-        
+
         // Remover headers de autenticação
-        if (isset($sanitized['headers']['Authorization'])) {
-            $sanitized['headers']['Authorization'] = '[REDACTED]';
+        if (isset($sanitized['headers']['X-API-KEY'])) {
+            $sanitized['headers']['X-API-KEY'] = '[REDACTED]';
         }
-        
-        if (isset($sanitized['headers']['X-API-Key'])) {
-            $sanitized['headers']['X-API-Key'] = '[REDACTED]';
+
+        if (isset($sanitized['headers']['X-API-SECRET'])) {
+            $sanitized['headers']['X-API-SECRET'] = '[REDACTED]';
         }
-        
+
         return $sanitized;
     }
 }

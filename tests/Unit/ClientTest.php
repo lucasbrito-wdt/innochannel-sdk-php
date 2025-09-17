@@ -283,10 +283,15 @@ class ClientTest extends TestCase
             new Response(200, [], json_encode(['authenticated' => true]))
         );
 
-        // O cliente deve automaticamente incluir o API key no header
+        // O cliente deve automaticamente incluir os cabeçalhos X-API-KEY e X-API-SECRET
         $result = $this->client->get('/auth/test');
 
         $this->assertEquals(['authenticated' => true], $result);
+        
+        // Verifica se os cabeçalhos de autenticação foram enviados
+        $lastRequest = $this->container[0]['request'];
+        $this->assertEquals('innotel-test-key-2024', $lastRequest->getHeaderLine('X-API-KEY'));
+        $this->assertEquals('innotel-test-secret-2024-secure', $lastRequest->getHeaderLine('X-API-SECRET'));
     }
 
     public function testRetryMechanism(): void
@@ -396,6 +401,62 @@ class ClientTest extends TestCase
         $this->client->get('/properties');
 
         $lastRequest = $this->container[0]['request'];
-        $this->assertEquals('Bearer innotel-test-key-2024', $lastRequest->getHeaderLine('Authorization'));
+        // Agora testamos os novos cabeçalhos X-API-KEY e X-API-SECRET
+        $this->assertEquals('innotel-test-key-2024', $lastRequest->getHeaderLine('X-API-KEY'));
+        $this->assertEquals('innotel-test-secret-2024-secure', $lastRequest->getHeaderLine('X-API-SECRET'));
+    }
+
+    public function testApiKeyAndSecretHeaders(): void
+    {
+        $this->mockHandler->append(
+            new Response(200, [], json_encode(['success' => true]))
+        );
+
+        $this->client->get('/properties');
+
+        $lastRequest = $this->container[0]['request'];
+        
+        // Verifica se ambos os cabeçalhos estão presentes
+        $this->assertTrue($lastRequest->hasHeader('X-API-KEY'));
+        $this->assertTrue($lastRequest->hasHeader('X-API-SECRET'));
+        
+        // Verifica os valores corretos
+        $this->assertEquals('innotel-test-key-2024', $lastRequest->getHeaderLine('X-API-KEY'));
+        $this->assertEquals('innotel-test-secret-2024-secure', $lastRequest->getHeaderLine('X-API-SECRET'));
+    }
+
+    public function testAuthenticationWithoutApiSecret(): void
+    {
+        // Testa o comportamento quando apenas api_key é fornecido (sem api_secret)
+        $config = [
+            'api_key' => 'test-key-only',
+            'base_url' => 'http://localhost/api'
+        ];
+
+        $mockHandler = new MockHandler();
+        $handlerStack = HandlerStack::create($mockHandler);
+        
+        $container = [];
+        $history = \GuzzleHttp\Middleware::history($container);
+        $handlerStack->push($history);
+
+        $httpClient = new HttpClient(['handler' => $handlerStack]);
+        $client = new Client($config, $httpClient);
+
+        $mockHandler->append(
+            new Response(200, [], json_encode(['success' => true]))
+        );
+
+        $client->get('/properties');
+
+        $lastRequest = $container[0]['request'];
+        
+        // Verifica se X-API-KEY está presente
+        $this->assertTrue($lastRequest->hasHeader('X-API-KEY'));
+        $this->assertEquals('test-key-only', $lastRequest->getHeaderLine('X-API-KEY'));
+        
+        // Verifica se X-API-SECRET está presente mas vazio
+        $this->assertTrue($lastRequest->hasHeader('X-API-SECRET'));
+        $this->assertEquals('', $lastRequest->getHeaderLine('X-API-SECRET'));
     }
 }
