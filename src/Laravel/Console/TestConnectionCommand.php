@@ -91,33 +91,55 @@ class TestConnectionCommand extends Command
     }
 
     /**
-     * Test the basic API connection.
+     * Testar a conexão com a API do Innochannel
      */
     protected function testApiConnection(): bool
     {
-        $this->info('Testing API connection...');
-
+        $this->info('Testando conexão com a API do Innochannel...');
+        
         try {
-            // Try to get properties as a basic connectivity test
-            $properties = Innochannel::getProperties(['limit' => 1]);
+            // Usar o novo método testConnection da facade
+            $response = Innochannel::testConnection();
             
-            $this->info('✓ API connection successful');
+            $this->info('✅ Conexão estabelecida com sucesso!');
             
-            if ($this->option('detailed')) {
-                $this->info("  Response received with " . count($properties) . " properties");
+            // Exibir informações detalhadas da resposta
+            if (is_array($response)) {
+                $this->line('');
+                $this->line('<comment>Detalhes da resposta:</comment>');
+                
+                if (isset($response['message'])) {
+                    $this->line("Mensagem: {$response['message']}");
+                }
+                
+                if (isset($response['pms_system'])) {
+                    $this->line("Sistema PMS: {$response['pms_system']}");
+                }
+                
+                if (isset($response['tested_at'])) {
+                    $this->line("Testado em: {$response['tested_at']}");
+                }
+                
+                if (isset($response['status'])) {
+                    $this->line("Status: {$response['status']}");
+                }
+                
+                if (isset($response['connection_time'])) {
+                    $this->line("Tempo de conexão: {$response['connection_time']}ms");
+                }
             }
-
+            
             return true;
-
-        } catch (Exception $e) {
-            $this->error('✗ API connection failed');
-            $this->error("  Error: {$e->getMessage()}");
             
-            if ($this->option('detailed')) {
-                $this->error("  Exception: " . get_class($e));
-                $this->error("  File: {$e->getFile()}:{$e->getLine()}");
+        } catch (\Exception $e) {
+            $this->error('❌ Falha na conexão: ' . $e->getMessage());
+            
+            if ($this->option('verbose')) {
+                $this->line('');
+                $this->line('<comment>Detalhes do erro:</comment>');
+                $this->line($e->getTraceAsString());
             }
-
+            
             return false;
         }
     }

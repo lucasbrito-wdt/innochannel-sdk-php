@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool registerWebhook(string $url, array $events = [])
  * @method static bool unregisterWebhook(string $url)
  * @method static array getWebhooks()
+ * @method static array testConnection()
  * 
  * @see \Innochannel\Client
  */

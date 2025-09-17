@@ -524,6 +524,18 @@ class Client
     }
 
     /**
+     * Testar conexão com o PMS
+     * 
+     * @param array $connectionData Dados da conexão (opcional)
+     * @return array
+     * @throws ApiException
+     */
+    public function testConnection(array $connectionData = []): array
+    {
+        return $this->properties()->testPmsConnection($connectionData);
+    }
+
+    /**
      * Sincronizar dados com uma OTA
      * 
      * @param string $connectionId ID da conexão
