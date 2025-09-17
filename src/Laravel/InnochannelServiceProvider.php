@@ -30,11 +30,11 @@ class InnochannelServiceProvider extends ServiceProvider
         $this->app->singleton(Client::class, function ($app) {
             $config = $app['config']['innochannel'];
 
-            return new Client(
-                $config['api_key'],
-                $config['base_url'],
-                $config['timeout'] ?? 30
-            );
+            return new Client([
+                'api_key' => $config['api_key'],
+                'base_url' => $config['base_url'],
+                'timeout' => $config['timeout'] ?? 30
+            ]);
         });
 
         // Register services
