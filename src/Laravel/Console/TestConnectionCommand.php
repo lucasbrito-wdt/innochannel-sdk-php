@@ -4,6 +4,7 @@ namespace Innochannel\Laravel\Console;
 
 use Illuminate\Console\Command;
 use Innochannel\Laravel\Facades\Innochannel;
+use Innochannel\Laravel\Facades\InnochannelReservation;
 use Exception;
 
 class TestConnectionCommand extends Command
@@ -64,7 +65,7 @@ class TestConnectionCommand extends Command
 
         foreach ($requiredConfigs as $config => $name) {
             $value = config($config);
-            
+
             if (empty($value)) {
                 $missingConfigs[] = $name;
                 $this->error("✗ {$name} is not configured");
@@ -96,50 +97,49 @@ class TestConnectionCommand extends Command
     protected function testApiConnection(): bool
     {
         $this->info('Testando conexão com a API do Innochannel...');
-        
+
         try {
             // Usar o novo método testConnection da facade
             $response = Innochannel::testConnection();
-            
+
             $this->info('✅ Conexão estabelecida com sucesso!');
-            
+
             // Exibir informações detalhadas da resposta
             if (is_array($response)) {
                 $this->line('');
                 $this->line('<comment>Detalhes da resposta:</comment>');
-                
+
                 if (isset($response['message'])) {
                     $this->line("Mensagem: {$response['message']}");
                 }
-                
+
                 if (isset($response['pms_system'])) {
                     $this->line("Sistema PMS: {$response['pms_system']}");
                 }
-                
+
                 if (isset($response['tested_at'])) {
                     $this->line("Testado em: {$response['tested_at']}");
                 }
-                
+
                 if (isset($response['status'])) {
                     $this->line("Status: {$response['status']}");
                 }
-                
+
                 if (isset($response['connection_time'])) {
                     $this->line("Tempo de conexão: {$response['connection_time']}ms");
                 }
             }
-            
+
             return true;
-            
         } catch (\Exception $e) {
             $this->error('❌ Falha na conexão: ' . $e->getMessage());
-            
+
             if ($this->option('verbose')) {
                 $this->line('');
                 $this->line('<comment>Detalhes do erro:</comment>');
                 $this->line($e->getTraceAsString());
             }
-            
+
             return false;
         }
     }
@@ -155,8 +155,8 @@ class TestConnectionCommand extends Command
             'Properties' => function () {
                 return Innochannel::getProperties(['limit' => 1]);
             },
-            'Bookings' => function () {
-                return Innochannel::getBookings(['limit' => 1]);
+            'Reservations' => function () {
+                return InnochannelReservation::getReservations(['limit' => 1]);
             },
         ];
 
@@ -164,7 +164,7 @@ class TestConnectionCommand extends Command
             try {
                 $result = $test();
                 $this->info("✓ {$name} endpoint working");
-                
+
                 if ($this->option('detailed')) {
                     $count = is_array($result) ? count($result) : 'N/A';
                     $this->info("  Returned {$count} items");

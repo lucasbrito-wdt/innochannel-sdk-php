@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('innochannel_logs', function (Blueprint $table) {
             $table->id();
             $table->string('level', 20)->index(); // debug, info, warning, error, critical
-            $table->string('channel', 50)->index(); // booking, property, inventory, webhook, etc.
-            $table->string('action', 100)->nullable(); // create_booking, update_property, etc.
+            $table->string('channel', 50)->index(); // reservation, property, inventory, webhook, etc.
+            $table->string('action', 100)->nullable(); // create_reservation, update_property, etc.
             $table->text('message');
             $table->json('context')->nullable(); // Additional context data
             $table->json('extra')->nullable(); // Extra metadata
             $table->string('request_id', 100)->nullable()->index(); // For request tracing
             $table->string('user_id', 100)->nullable()->index(); // User who triggered the action
             $table->string('property_id', 100)->nullable()->index(); // Related property
-            $table->string('booking_id', 100)->nullable()->index(); // Related booking
+            $table->string('reservation_id', 100)->nullable()->index(); // Related reservation
             $table->ipAddress('ip_address')->nullable();
             $table->string('user_agent')->nullable();
             $table->timestamps();

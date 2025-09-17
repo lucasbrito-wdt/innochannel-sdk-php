@@ -25,10 +25,9 @@ class ReservationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->eventManager = new EventManager();
-        Reservation::setEventManager($this->eventManager);
-        
+
+        $this->eventManager = EventManager::getInstance();
+
         $this->sampleData = [
             'id' => 'reservation-123',
             'property_id' => 'property-456',
@@ -43,7 +42,7 @@ class ReservationTest extends TestCase
             'status' => 'confirmed',
             'total_amount' => 500.00,
             'currency' => 'USD',
-            'source' => 'booking.com',
+            'source' => 'reservations.com',
             'created_at' => '2024-01-01 10:00:00',
             'updated_at' => '2024-01-01 10:00:00'
         ];
@@ -52,7 +51,7 @@ class ReservationTest extends TestCase
     public function testReservationCreation(): void
     {
         $reservation = new Reservation($this->sampleData);
-        
+
         $this->assertEquals('reservation-123', $reservation->getId());
         $this->assertEquals('property-456', $reservation->getPropertyId());
         $this->assertEquals('John Doe', $reservation->getGuestName());
@@ -63,12 +62,12 @@ class ReservationTest extends TestCase
     public function testReservationCreatedEvent(): void
     {
         $eventFired = false;
-        $this->eventManager->addListener('reservation.created', function() use (&$eventFired) {
+        $this->eventManager->addListener('reservation.created', function () use (&$eventFired) {
             $eventFired = true;
         });
 
         new Reservation($this->sampleData);
-        
+
         $this->assertTrue($eventFired);
     }
 
@@ -76,13 +75,13 @@ class ReservationTest extends TestCase
     {
         $reservation = new Reservation($this->sampleData);
         $eventFired = false;
-        
-        $this->eventManager->addListener('reservation.updated', function() use (&$eventFired) {
+
+        $this->eventManager->addListener('reservation.updated', function () use (&$eventFired) {
             $eventFired = true;
         });
 
         $reservation->setGuestName('Jane Doe');
-        
+
         $this->assertTrue($eventFired);
         $this->assertEquals('Jane Doe', $reservation->getGuestName());
     }
@@ -92,15 +91,15 @@ class ReservationTest extends TestCase
         $reservation = new Reservation(array_merge($this->sampleData, ['status' => 'pending']));
         $confirmedEventFired = false;
         $cancelledEventFired = false;
-        
-        $this->eventManager->addListener('reservation.confirmed', function() use (&$confirmedEventFired) {
+
+        $this->eventManager->addListener('reservation.confirmed', function () use (&$confirmedEventFired) {
             $confirmedEventFired = true;
         });
 
         $reservation->setStatus('confirmed');
         $this->assertTrue($confirmedEventFired);
 
-        $this->eventManager->addListener('reservation.cancelled', function() use (&$cancelledEventFired) {
+        $this->eventManager->addListener('reservation.cancelled', function () use (&$cancelledEventFired) {
             $cancelledEventFired = true;
         });
 
@@ -112,13 +111,13 @@ class ReservationTest extends TestCase
     {
         $reservation = new Reservation($this->sampleData);
         $eventFired = false;
-        
-        $this->eventManager->addListener('reservation.deleted', function() use (&$eventFired) {
+
+        $this->eventManager->addListener('reservation.deleted', function () use (&$eventFired) {
             $eventFired = true;
         });
 
         $reservation->delete();
-        
+
         $this->assertTrue($eventFired);
     }
 
@@ -126,7 +125,7 @@ class ReservationTest extends TestCase
     {
         $reservation = new Reservation($this->sampleData);
         $array = $reservation->toArray();
-        
+
         $this->assertIsArray($array);
         $this->assertEquals('reservation-123', $array['id']);
         $this->assertEquals('John Doe', $array['guest_name']);
@@ -135,7 +134,7 @@ class ReservationTest extends TestCase
     public function testFromArray(): void
     {
         $reservation = Reservation::fromArray($this->sampleData);
-        
+
         $this->assertInstanceOf(Reservation::class, $reservation);
         $this->assertEquals('reservation-123', $reservation->getId());
         $this->assertEquals('John Doe', $reservation->getGuestName());
@@ -145,13 +144,13 @@ class ReservationTest extends TestCase
     {
         $reservation = new Reservation();
         $eventFired = false;
-        
-        $this->eventManager->addListener('reservation.updated', function() use (&$eventFired) {
+
+        $this->eventManager->addListener('reservation.updated', function () use (&$eventFired) {
             $eventFired = true;
         });
 
         $reservation->fillFromArray($this->sampleData);
-        
+
         $this->assertTrue($eventFired);
         $this->assertEquals('reservation-123', $reservation->getId());
         $this->assertEquals('John Doe', $reservation->getGuestName());
@@ -161,14 +160,14 @@ class ReservationTest extends TestCase
     {
         $reservation = new Reservation($this->sampleData);
         $eventFired = false;
-        
-        $this->eventManager->addListener('reservation.updated', function() use (&$eventFired) {
+
+        $this->eventManager->addListener('reservation.updated', function () use (&$eventFired) {
             $eventFired = true;
         });
 
         $reservation->disableEvents();
         $reservation->setGuestName('Jane Doe');
-        
+
         $this->assertFalse($eventFired);
         $this->assertEquals('Jane Doe', $reservation->getGuestName());
     }
@@ -177,15 +176,15 @@ class ReservationTest extends TestCase
     {
         $reservation = new Reservation($this->sampleData);
         $eventFired = false;
-        
-        $this->eventManager->addListener('reservation.updated', function() use (&$eventFired) {
+
+        $this->eventManager->addListener('reservation.updated', function () use (&$eventFired) {
             $eventFired = true;
         });
 
-        $reservation->withoutEvents(function() use ($reservation) {
+        $reservation->withoutEvents(function () use ($reservation) {
             $reservation->setGuestName('Jane Doe');
         });
-        
+
         $this->assertFalse($eventFired);
         $this->assertEquals('Jane Doe', $reservation->getGuestName());
     }
@@ -193,12 +192,12 @@ class ReservationTest extends TestCase
     public function testDirtyTracking(): void
     {
         $reservation = new Reservation($this->sampleData);
-        
+
         $this->assertFalse($reservation->isDirty());
         $this->assertEmpty($reservation->getChanges());
 
         $reservation->setGuestName('Jane Doe');
-        
+
         $this->assertTrue($reservation->isDirty());
         $changes = $reservation->getChanges();
         $this->assertArrayHasKey('guest_name', $changes);
@@ -209,7 +208,7 @@ class ReservationTest extends TestCase
     public function testDateConversion(): void
     {
         $reservation = new Reservation($this->sampleData);
-        
+
         $this->assertInstanceOf(DateTime::class, $reservation->getCheckIn());
         $this->assertInstanceOf(DateTime::class, $reservation->getCheckOut());
         $this->assertInstanceOf(DateTime::class, $reservation->getCreatedAt());

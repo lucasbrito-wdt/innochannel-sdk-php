@@ -154,7 +154,7 @@ return [
     |
     */
     'models' => [
-        'booking' => [
+        'reservation' => [
             'events_enabled' => true,
             'auto_sync' => true,
             'webhook_enabled' => true,

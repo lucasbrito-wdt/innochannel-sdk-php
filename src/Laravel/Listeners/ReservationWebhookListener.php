@@ -45,7 +45,7 @@ class ReservationWebhookListener
                 'event_type' => $eventType,
             ]);
         } catch (\Exception $e) {
-            Log::error("Failed to process booking webhook", [
+            Log::error("Failed to process reservations webhook", [
                 'reservation_id' => $reservationId,
                 'event_type' => $eventType,
                 'error' => $e->getMessage(),
@@ -88,13 +88,13 @@ class ReservationWebhookListener
         // Add your custom logic here
         // For example:
         // - Send confirmation email to guest
-        // - Update local booking database
+        // - Update local reservations database
         // - Trigger PMS sync
         // - Send notification to property manager
     }
 
     /**
-     * Handle booking updated event.
+     * Handle reservations updated event.
      */
     protected function handleReservationUpdated(array $reservationData): void
     {
@@ -105,13 +105,13 @@ class ReservationWebhookListener
 
         // Add your custom logic here
         // For example:
-        // - Update local booking record
+        // - Update local reservations record
         // - Send update notification to guest
         // - Sync changes with PMS
     }
 
     /**
-     * Handle booking cancelled event.
+     * Handle reservations cancelled event.
      */
     protected function handleReservationCancelled(array $reservationData): void
     {
@@ -129,7 +129,7 @@ class ReservationWebhookListener
     }
 
     /**
-     * Handle booking modified event.
+     * Handle reservations modified event.
      */
     protected function handleReservationModified(array $reservationData): void
     {

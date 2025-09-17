@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('innochannel_sync_status', function (Blueprint $table) {
             $table->id();
-            $table->string('entity_type', 50)->index(); // booking, property, inventory
+            $table->string('entity_type', 50)->index(); // reservation, property, inventory
             $table->string('entity_id', 100)->index(); // ID of the entity being synced
             $table->string('pms_system', 50)->index(); // opera, fidelio, etc.
             $table->string('sync_type', 50); // full, partial, delta

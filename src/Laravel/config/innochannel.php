@@ -120,10 +120,10 @@ return [
     |
     */
     'services' => [
-        'booking' => [
-            'auto_sync' => env('INNOCHANNEL_BOOKING_AUTO_SYNC', true),
-            'sync_direction' => env('INNOCHANNEL_BOOKING_SYNC_DIRECTION', 'both'), // push, pull, both
-            'validation_strict' => env('INNOCHANNEL_BOOKING_VALIDATION_STRICT', true),
+        'reservation' => [
+            'auto_sync' => env('INNOCHANNEL_RESERVATION_AUTO_SYNC', true),
+            'sync_direction' => env('INNOCHANNEL_RESERVATION_SYNC_DIRECTION', 'both'), // push, pull, both
+            'validation_strict' => env('INNOCHANNEL_RESERVATION_VALIDATION_STRICT', true),
         ],
         'property' => [
             'auto_sync' => env('INNOCHANNEL_PROPERTY_AUTO_SYNC', true),
@@ -148,15 +148,15 @@ return [
         'enabled' => env('INNOCHANNEL_EVENTS_ENABLED', true),
         'async' => env('INNOCHANNEL_EVENTS_ASYNC', true),
         'queue' => env('INNOCHANNEL_EVENTS_QUEUE', 'default'),
-        
+
         // Model Events Configuration
         'model_events' => [
-            'booking' => [
-                'created' => env('INNOCHANNEL_BOOKING_CREATED_ENABLED', true),
-                'updated' => env('INNOCHANNEL_BOOKING_UPDATED_ENABLED', true),
-                'cancelled' => env('INNOCHANNEL_BOOKING_CANCELLED_ENABLED', true),
-                'confirmed' => env('INNOCHANNEL_BOOKING_CONFIRMED_ENABLED', true),
-                'deleted' => env('INNOCHANNEL_BOOKING_DELETED_ENABLED', true),
+            'reservation' => [
+                'created' => env('INNOCHANNEL_RESERVATION_CREATED_ENABLED', true),
+                'updated' => env('INNOCHANNEL_RESERVATION_UPDATED_ENABLED', true),
+                'cancelled' => env('INNOCHANNEL_RESERVATION_CANCELLED_ENABLED', true),
+                'confirmed' => env('INNOCHANNEL_RESERVATION_CONFIRMED_ENABLED', true),
+                'deleted' => env('INNOCHANNEL_RESERVATION_DELETED_ENABLED', true),
             ],
             'property' => [
                 'created' => env('INNOCHANNEL_PROPERTY_CREATED_ENABLED', true),
@@ -186,21 +186,21 @@ return [
                 'capacity_updated' => env('INNOCHANNEL_ROOM_CAPACITY_UPDATED_ENABLED', true),
             ],
         ],
-        
+
         // Event Logging Configuration
         'logging' => [
             'enabled' => env('INNOCHANNEL_EVENTS_LOGGING_ENABLED', false),
             'channel' => env('INNOCHANNEL_EVENTS_LOG_CHANNEL', 'default'),
             'level' => env('INNOCHANNEL_EVENTS_LOG_LEVEL', 'info'),
         ],
-        
+
         // Performance Configuration
         'performance' => [
             'max_listeners_per_event' => env('INNOCHANNEL_MAX_LISTENERS_PER_EVENT', 0),
             'listener_timeout' => env('INNOCHANNEL_LISTENER_TIMEOUT', 0),
             'stop_on_failure' => env('INNOCHANNEL_STOP_ON_FAILURE', false),
         ],
-        
+
         // Debug Configuration
         'debug' => [
             'enabled' => env('INNOCHANNEL_EVENTS_DEBUG', false),

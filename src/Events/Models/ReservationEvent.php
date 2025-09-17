@@ -21,8 +21,8 @@ abstract class ReservationEvent extends AbstractEvent
         array $additionalData = []
     ) {
         $data = array_merge([
-            'booking' => $reservation,
-            'booking_id' => $reservation->getId(),
+            'reservation' => $reservation,
+            'reservation_id' => $reservation->getId(),
             'property_id' => $reservation->getPropertyId(),
             'room_id' => $reservation->getRoomId(),
             'status' => $reservation->getStatus(),

@@ -170,81 +170,6 @@ class Client
     }
 
     /**
-     * Obter reservas (método de conveniência)
-     * 
-     * @param array $filters Filtros opcionais
-     * @return array
-     * @throws ApiException
-     */
-    public function getBookings(array $filters = []): array
-    {
-        return $this->reservations()->list($filters);
-    }
-
-    /**
-     * Obter uma reserva específica (método de conveniência)
-     * 
-     * @param string $id ID da reserva
-     * @return \Innochannel\Sdk\Models\Booking
-     * @throws ApiException
-     */
-    public function getBooking(string $id): \Innochannel\Sdk\Models\Booking
-    {
-        return $this->reservations()->get($id);
-    }
-
-    /**
-     * Criar uma nova reserva (método de conveniência)
-     * 
-     * @param array $data Dados da reserva
-     * @return \Innochannel\Sdk\Models\Booking
-     * @throws ApiException
-     */
-    public function createBooking(array $data): \Innochannel\Sdk\Models\Booking
-    {
-        return $this->reservations()->create($data);
-    }
-
-    /**
-     * Atualizar uma reserva (método de conveniência)
-     * 
-     * @param string $id ID da reserva
-     * @param array $data Dados para atualização
-     * @return \Innochannel\Sdk\Models\Booking
-     * @throws ApiException
-     */
-    public function updateBooking(string $id, array $data): \Innochannel\Sdk\Models\Booking
-    {
-        return $this->reservations()->update($id, $data);
-    }
-
-    /**
-     * Cancelar uma reserva (método de conveniência)
-     * 
-     * @param string $id ID da reserva
-     * @param array $options Opções de cancelamento
-     * @return bool
-     * @throws ApiException
-     */
-    public function cancelBooking(string $id, array $options = []): bool
-    {
-        return $this->reservations()->cancel($id, $options);
-    }
-
-    /**
-     * Sincronizar reserva com PMS (método de conveniência)
-     * 
-     * @param string $id ID da reserva
-     * @param array $options Opções de sincronização
-     * @return array
-     * @throws ApiException
-     */
-    public function syncBookingWithPms(string $id, array $options = []): array
-    {
-        return $this->reservations()->syncWithPms($id, $options);
-    }
-
-    /**
      * Obter inventário (método de conveniência)
      * 
      * @param string $propertyId ID da propriedade
@@ -338,25 +263,25 @@ class Client
     /**
      * Criar uma nova reserva
      * 
-     * @param array $bookingData Dados da reserva
-     * @return \Innochannel\Sdk\Models\Booking
+     * @param array $reservationData Dados da reserva
+     * @return \Innochannel\Sdk\Models\Reservation
      * @throws ApiException
      */
-    public function createReservation(array $bookingData): \Innochannel\Sdk\Models\Booking
+    public function createReservation(array $reservationData): \Innochannel\Sdk\Models\Reservation
     {
-        return $this->reservations()->create($bookingData);
+        return $this->reservations()->create($reservationData);
     }
 
     /**
      * Obter uma reserva específica
      * 
-     * @param string $bookingId ID da reserva
-     * @return \Innochannel\Sdk\Models\Booking
+     * @param string $reservationId ID da reserva
+     * @return \Innochannel\Sdk\Models\Reservation
      * @throws ApiException
      */
-    public function getReservation(string $bookingId): \Innochannel\Sdk\Models\Booking
+    public function getReservation(string $reservationId): \Innochannel\Sdk\Models\Reservation
     {
-        return $this->reservations()->get($bookingId);
+        return $this->reservations()->get($reservationId);
     }
 
     /**
@@ -374,78 +299,78 @@ class Client
     /**
      * Atualizar uma reserva
      * 
-     * @param string $bookingId ID da reserva
+     * @param string $reservationId ID da reserva
      * @param array $updateData Dados para atualização
-     * @return \Innochannel\Sdk\Models\Booking
+     * @return \Innochannel\Sdk\Models\Reservation
      * @throws ApiException
      */
-    public function updateReservation(string $bookingId, array $updateData): \Innochannel\Sdk\Models\Booking
+    public function updateReservation(string $reservationId, array $updateData): \Innochannel\Sdk\Models\Reservation
     {
-        return $this->reservations()->update($bookingId, $updateData);
+        return $this->reservations()->update($reservationId, $updateData);
     }
 
     /**
      * Cancelar uma reserva
      * 
-     * @param string $bookingId ID da reserva
+     * @param string $reservationId ID da reserva
      * @param array $cancellationData Dados de cancelamento
      * @return bool
      * @throws ApiException
      */
-    public function cancelReservation(string $bookingId, array $cancellationData = []): bool
+    public function cancelReservation(string $reservationId, array $cancellationData = []): bool
     {
-        return $this->reservations()->cancel($bookingId, $cancellationData);
+        return $this->reservations()->cancel($reservationId, $cancellationData);
     }
 
     /**
      * Confirmar uma reserva
      * 
-     * @param string $bookingId ID da reserva
+     * @param string $reservationId ID da reserva
      * @param array $confirmationData Dados de confirmação
-     * @return \Innochannel\Sdk\Models\Booking
+     * @return \Innochannel\Sdk\Models\Reservation
      * @throws ApiException
      */
-    public function confirmReservation(string $bookingId, array $confirmationData = []): \Innochannel\Sdk\Models\Booking
+    public function confirmReservation(string $reservationId, array $confirmationData = []): \Innochannel\Sdk\Models\Reservation
     {
-        return $this->reservations()->confirm($bookingId, $confirmationData);
+        return $this->reservations()->confirm($reservationId, $confirmationData);
     }
 
     /**
      * Modificar uma reserva
      * 
-     * @param string $bookingId ID da reserva
+     * @param string $reservationId ID da reserva
      * @param array $modificationData Dados de modificação
-     * @return \Innochannel\Sdk\Models\Booking
+     * @return \Innochannel\Sdk\Models\Reservation
      * @throws ApiException
      */
-    public function modifyReservation(string $bookingId, array $modificationData): \Innochannel\Sdk\Models\Booking
+    public function modifyReservation(string $reservationId, array $modificationData): \Innochannel\Sdk\Models\Reservation
     {
-        return $this->reservations()->modify($bookingId, $modificationData);
+        return $this->reservations()->modify($reservationId, $modificationData);
     }
 
     /**
      * Obter histórico de uma reserva
      * 
-     * @param string $bookingId ID da reserva
+     * @param string $reservationId ID da reserva
      * @return array
      * @throws ApiException
      */
-    public function getReservationHistory(string $bookingId): array
+    public function getReservationHistory(string $reservationId): array
     {
-        return $this->reservations()->getHistory($bookingId);
+        return $this->reservations()->getHistory($reservationId);
     }
 
     /**
      * Sincronizar reserva com PMS
      * 
-     * @param string $bookingId ID da reserva
+     * @param string $reservationId ID da reserva
      * @param array $syncOptions Opções de sincronização
      * @return array
      * @throws ApiException
      */
-    public function syncReservationWithPms(string $bookingId, array $syncOptions = []): array
+    public function syncReservationWithPms(string $reservationId, array $syncOptions = []): array
     {
-        return $this->reservations()->syncWithPms($bookingId, $syncOptions);
+        return $this->reservations()->syncWithPms($reservationId, $syncOptions);
     }
 
     // ========== OTA CONNECTION SERVICE METHODS ==========

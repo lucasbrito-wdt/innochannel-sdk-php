@@ -93,7 +93,7 @@ class InventoryWebhookListener
         // - Update local rate database
         // - Sync with PMS rates
         // - Recalculate pricing strategies
-        // - Update booking engine rates
+        // - Update reservation engine rates
         // - Notify revenue management system
     }
 
@@ -115,7 +115,7 @@ class InventoryWebhookListener
         // For example:
         // - Update local availability database
         // - Sync with PMS inventory
-        // - Update booking engine availability
+        // - Update reservation engine availability
         // - Trigger overbooking alerts if needed
         // - Update channel manager
     }
@@ -139,7 +139,7 @@ class InventoryWebhookListener
         // - Update local restrictions database
         // - Apply minimum stay rules
         // - Update closed-to-arrival/departure settings
-        // - Sync with booking engine rules
+        // - Sync with reservation engine rules
         // - Update channel restrictions
     }
 

@@ -79,13 +79,13 @@ Este documento descreve todas as variáveis de ambiente disponíveis para config
 
 ## 🏨 Configuração de Serviços
 
-### Booking Service
+### Reservation Service
 
 | Variável | Tipo | Padrão | Descrição |
 |----------|------|--------|-----------|
-| `INNOCHANNEL_BOOKING_AUTO_SYNC` | boolean | `true` | Sincronização automática de reservas |
-| `INNOCHANNEL_BOOKING_SYNC_DIRECTION` | string | `both` | Direção da sincronização (in, out, both) |
-| `INNOCHANNEL_BOOKING_VALIDATION_STRICT` | boolean | `true` | Validação rigorosa de dados |
+| `INNOCHANNEL_RESERVATION_AUTO_SYNC` | boolean | `true` | Sincronização automática de reservas |
+| `INNOCHANNEL_RESERVATION_SYNC_DIRECTION` | string | `both` | Direção da sincronização (in, out, both) |
+| `INNOCHANNEL_RESERVATION_VALIDATION_STRICT` | boolean | `true` | Validação rigorosa de dados |
 
 ### Property Service
 
@@ -112,15 +112,15 @@ Este documento descreve todas as variáveis de ambiente disponíveis para config
 | `INNOCHANNEL_EVENTS_ASYNC` | boolean | `true` | Execução assíncrona de eventos |
 | `INNOCHANNEL_EVENTS_QUEUE` | string | `default` | Fila para eventos assíncronos |
 
-### Eventos de Booking
+### Eventos de Reservation
 
 | Variável | Tipo | Padrão | Descrição |
 |----------|------|--------|-----------|
-| `INNOCHANNEL_BOOKING_CREATED_ENABLED` | boolean | `true` | Evento de reserva criada |
-| `INNOCHANNEL_BOOKING_UPDATED_ENABLED` | boolean | `true` | Evento de reserva atualizada |
-| `INNOCHANNEL_BOOKING_CANCELLED_ENABLED` | boolean | `true` | Evento de reserva cancelada |
-| `INNOCHANNEL_BOOKING_CONFIRMED_ENABLED` | boolean | `true` | Evento de reserva confirmada |
-| `INNOCHANNEL_BOOKING_DELETED_ENABLED` | boolean | `true` | Evento de reserva deletada |
+| `INNOCHANNEL_RESERVATION_CREATED_ENABLED` | boolean | `true` | Evento de reserva criada |
+| `INNOCHANNEL_RESERVATION_UPDATED_ENABLED` | boolean | `true` | Evento de reserva atualizada |
+| `INNOCHANNEL_RESERVATION_CANCELLED_ENABLED` | boolean | `true` | Evento de reserva cancelada |
+| `INNOCHANNEL_RESERVATION_CONFIRMED_ENABLED` | boolean | `true` | Evento de reserva confirmada |
+| `INNOCHANNEL_RESERVATION_DELETED_ENABLED` | boolean | `true` | Evento de reserva deletada |
 
 ### Eventos de Property
 
@@ -310,6 +310,7 @@ php artisan innochannel:test-connection --detailed
 ```
 
 Este comando verificará:
+
 - ✅ Presença das credenciais obrigatórias
 - ✅ Conectividade com a API
 - ✅ Configuração de endpoints

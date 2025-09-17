@@ -12,12 +12,12 @@ return [
     |
     */
 
-    'booking' => [
-        'created' => 'Booking created successfully',
-        'updated' => 'Booking updated successfully',
-        'cancelled' => 'Booking cancelled successfully',
-        'not_found' => 'Booking not found',
-        'invalid_data' => 'Invalid booking data provided',
+    'reservations' => [
+        'created' => 'Reservation created successfully',
+        'updated' => 'Reservation updated successfully',
+        'cancelled' => 'Reservation cancelled successfully',
+        'not_found' => 'Reservation not found',
+        'invalid_data' => 'Invalid reservations data provided',
     ],
 
     'property' => [

@@ -24,7 +24,7 @@ class ReservationServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->mockClient = Mockery::mock(Client::class);
         $this->reservationService = new ReservationService($this->mockClient);
     }
@@ -52,7 +52,7 @@ class ReservationServiceTest extends TestCase
             'total_amount' => 500.00,
             'currency' => 'USD',
             'status' => 'confirmed',
-            'source' => 'booking.com',
+            'source' => 'reservations.com',
             'confirmation_code' => 'ABC123',
             'special_requests' => 'Late check-in',
             'created_at' => '2024-01-01 10:00:00',
@@ -92,7 +92,7 @@ class ReservationServiceTest extends TestCase
             'check_out' => '2024-01-20',
             'adults' => 2,
             'children' => 1,
-            'source' => 'booking.com',
+            'source' => 'reservations.com',
         ];
 
         $mockReservation = $this->getMockReservation();

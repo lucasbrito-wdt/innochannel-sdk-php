@@ -34,21 +34,25 @@ InnochannelServiceProvider
 O Service Provider oferece os seguintes recursos para publicação:
 
 ### 1. Configurações (`innochannel-config`)
+
 - **Arquivo**: `config/innochannel.php`
 - **Descrição**: Arquivo de configuração principal do SDK
 - **Localização**: `src/Laravel/config/innochannel.php`
 
 ### 2. Migrations (`innochannel-migrations`)
+
 - **Arquivos**: Migrations do banco de dados
 - **Descrição**: Tabelas necessárias para logs, cache, webhooks e status de sincronização
 - **Localização**: `src/Laravel/database/migrations/`
 
 ### 3. Views (`innochannel-views`)
+
 - **Arquivos**: Templates Blade
 - **Descrição**: Views para dashboard e interfaces administrativas
 - **Localização**: `src/Laravel/resources/views/`
 
 ### 4. Arquivos de Idioma (`innochannel-lang`)
+
 - **Arquivos**: Traduções
 - **Descrição**: Arquivos de tradução para internacionalização
 - **Localização**: `src/Laravel/resources/lang/`
@@ -102,11 +106,13 @@ php artisan vendor:publish --provider="Innochannel\Laravel\InnochannelServicePro
 ### Processo de Publicação
 
 1. **Comando de Publicação**:
+
    ```bash
    php artisan vendor:publish --provider="Innochannel\Laravel\InnochannelServiceProvider" --tag="innochannel-config"
    ```
 
 2. **Localização do Arquivo Publicado**:
+
    ```
    config/innochannel.php
    ```
@@ -168,10 +174,10 @@ return [
     
     // Configuração de Serviços
     'services' => [
-        'booking' => [
-            'auto_sync' => env('INNOCHANNEL_BOOKING_AUTO_SYNC', true),
-            'sync_direction' => env('INNOCHANNEL_BOOKING_SYNC_DIRECTION', 'both'),
-            'validation_strict' => env('INNOCHANNEL_BOOKING_VALIDATION_STRICT', true),
+        'reservation' => [
+            'auto_sync' => env('INNOCHANNEL_RESERVATION_AUTO_SYNC', true),
+            'sync_direction' => env('INNOCHANNEL_RESERVATION_SYNC_DIRECTION', 'both'),
+            'validation_strict' => env('INNOCHANNEL_RESERVATION_VALIDATION_STRICT', true),
         ],
         'property' => [
             'auto_sync' => env('INNOCHANNEL_PROPERTY_AUTO_SYNC', true),
@@ -190,9 +196,9 @@ return [
         'async' => env('INNOCHANNEL_EVENTS_ASYNC', true),
         'queue' => env('INNOCHANNEL_EVENTS_QUEUE', 'default'),
         'listeners' => [
-            'booking_created' => true,
-            'booking_updated' => true,
-            'booking_cancelled' => true,
+            'reservation_created' => true,
+            'reservation_updated' => true,
+            'reservation_cancelled' => true,
             'property_updated' => true,
             'inventory_updated' => true,
         ],
@@ -247,29 +253,32 @@ O SDK inclui as seguintes migrations:
 
 1. **`2024_01_01_000001_create_innochannel_logs_table.php`**
    - Tabela para logs de requisições e respostas da API
-   
+
 2. **`2024_01_01_000002_create_innochannel_cache_table.php`**
    - Tabela para cache de dados da API
-   
+
 3. **`2024_01_01_000003_create_innochannel_webhooks_table.php`**
    - Tabela para armazenar webhooks recebidos
-   
+
 4. **`2024_01_01_000004_create_innochannel_sync_status_table.php`**
    - Tabela para controlar status de sincronização
 
 ### Processo de Publicação
 
 1. **Publicar Migrations**:
+
    ```bash
    php artisan vendor:publish --provider="Innochannel\Laravel\InnochannelServiceProvider" --tag="innochannel-migrations"
    ```
 
 2. **Executar Migrations**:
+
    ```bash
    php artisan migrate
    ```
 
 3. **Executar Migrations Específicas** (se necessário):
+
    ```bash
    php artisan migrate --path=database/migrations/2024_01_01_000001_create_innochannel_logs_table.php
    ```
@@ -277,6 +286,7 @@ O SDK inclui as seguintes migrations:
 ### Estrutura das Tabelas
 
 #### Tabela `innochannel_logs`
+
 ```sql
 CREATE TABLE innochannel_logs (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -297,6 +307,7 @@ CREATE TABLE innochannel_logs (
 ```
 
 #### Tabela `innochannel_cache`
+
 ```sql
 CREATE TABLE innochannel_cache (
     key VARCHAR(255) PRIMARY KEY,
@@ -307,6 +318,7 @@ CREATE TABLE innochannel_cache (
 ```
 
 #### Tabela `innochannel_webhooks`
+
 ```sql
 CREATE TABLE innochannel_webhooks (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -324,6 +336,7 @@ CREATE TABLE innochannel_webhooks (
 ```
 
 #### Tabela `innochannel_sync_status`
+
 ```sql
 CREATE TABLE innochannel_sync_status (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -351,16 +364,19 @@ O SDK inclui as seguintes views:
 ### Processo de Publicação
 
 1. **Publicar Views**:
+
    ```bash
    php artisan vendor:publish --provider="Innochannel\Laravel\InnochannelServiceProvider" --tag="innochannel-views"
    ```
 
 2. **Localização das Views Publicadas**:
+
    ```
    resources/views/vendor/innochannel/
    ```
 
 3. **Usar Views no Código**:
+
    ```php
    // Usar view publicada
    return view('innochannel::dashboard');
@@ -372,7 +388,8 @@ O SDK inclui as seguintes views:
 ### Estrutura da View Dashboard
 
 A view dashboard inclui:
-- Estatísticas de bookings, propriedades e inventário
+
+- Estatísticas de reservations, propriedades e inventário
 - Logs de atividades recentes
 - Status de webhooks
 - Informações de sincronização
@@ -382,19 +399,22 @@ A view dashboard inclui:
 ### Processo de Publicação
 
 1. **Publicar Arquivos de Idioma**:
+
    ```bash
    php artisan vendor:publish --provider="Innochannel\Laravel\InnochannelServiceProvider" --tag="innochannel-lang"
    ```
 
 2. **Localização dos Arquivos Publicados**:
+
    ```
    resources/lang/vendor/innochannel/
    ```
 
 3. **Usar Traduções**:
+
    ```php
    // Usar tradução
-   __('innochannel::messages.booking_created')
+   __('innochannel::messages.reservation_created')
    
    // Ou com parâmetros
    __('innochannel::messages.sync_completed', ['count' => 10])
@@ -405,6 +425,7 @@ A view dashboard inclui:
 O Service Provider registra os seguintes comandos Artisan:
 
 ### 1. `innochannel:install`
+
 Comando principal de instalação que automatiza todo o processo.
 
 ```bash
@@ -416,20 +437,22 @@ php artisan innochannel:install --force --skip-migrations
 ```
 
 ### 2. `innochannel:sync`
+
 Comando para sincronização manual de dados.
 
 ```bash
 # Sincronizar todos os dados
 php artisan innochannel:sync
 
-# Sincronizar apenas bookings
-php artisan innochannel:sync --type=bookings
+# Sincronizar apenas reservations
+php artisan innochannel:sync --type=reservations
 
 # Sincronizar com força (ignorar cache)
 php artisan innochannel:sync --force
 ```
 
 ### 3. `innochannel:test-connection`
+
 Comando para testar a conexão com a API.
 
 ```bash
@@ -496,6 +519,7 @@ php artisan config:clear
 **Erro**: `Configuration file not found`
 
 **Solução**:
+
 ```bash
 # Republicar configurações
 php artisan vendor:publish --provider="Innochannel\Laravel\InnochannelServiceProvider" --tag="innochannel-config" --force
@@ -509,6 +533,7 @@ php artisan config:clear
 **Erro**: `Table doesn't exist`
 
 **Solução**:
+
 ```bash
 # Verificar status das migrations
 php artisan migrate:status
@@ -525,6 +550,7 @@ php artisan migrate --path=database/migrations/2024_01_01_000001_create_innochan
 **Erro**: `View not found`
 
 **Solução**:
+
 ```bash
 # Publicar views
 php artisan vendor:publish --provider="Innochannel\Laravel\InnochannelServiceProvider" --tag="innochannel-views"
@@ -538,6 +564,7 @@ php artisan view:clear
 **Erro**: `Command not found`
 
 **Solução**:
+
 ```bash
 # Verificar se o Service Provider está registrado
 php artisan package:discover
@@ -554,6 +581,7 @@ php artisan list innochannel
 **Erro**: `Permission denied`
 
 **Solução**:
+
 ```bash
 # Ajustar permissões dos diretórios de storage
 chmod -R 755 storage/app/innochannel/
@@ -575,6 +603,7 @@ chown -R www-data:www-data storage/app/innochannel/
 Este guia fornece uma visão completa do processo de publicação dos recursos do Innochannel Laravel Service Provider. Seguindo estas instruções, você poderá instalar, configurar e personalizar o SDK de acordo com suas necessidades específicas.
 
 Para mais informações, consulte:
+
 - [Documentação oficial do Innochannel](https://docs.innochannel.com)
 - [Repositório do SDK](https://github.com/lucasbrito-wdt/innochannel-sdk-php)
 - [Guia de integração](INTEGRATION_GUIDE.md)

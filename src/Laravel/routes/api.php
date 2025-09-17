@@ -26,5 +26,5 @@ Route::get('/innochannel/health', function () {
 // Example:
 // Route::prefix('innochannel')->group(function () {
 //     Route::get('/properties', [PropertyController::class, 'index']);
-//     Route::get('/bookings', [BookingController::class, 'index']);
+//     Route::get('/bookings', [ReservationController::class, 'index']);
 // });

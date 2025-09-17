@@ -188,7 +188,7 @@ class RatePlanWebhookListener
         // - Update cached rate data
         // - Recalculate pricing if base rate changed
         // - Update derived rates
-        // - Notify booking engines of rate changes
+        // - Notify reservations engines of rate changes
     }
 
     /**
@@ -209,7 +209,7 @@ class RatePlanWebhookListener
         // - Notify property owner
         // - Clean up related pricing data
         // - Update availability calculations
-        // - Notify booking engines of rate removal
+        // - Notify reservations engines of rate removal
     }
 
     /**

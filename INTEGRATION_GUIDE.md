@@ -162,8 +162,8 @@ curl -X POST https://api.innochannel.com/webhooks \
   -H "Authorization: Bearer $INNOCHANNEL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://seu-dominio.com/innochannel/webhooks/booking",
-    "events": ["booking.created", "booking.updated", "booking.cancelled"],
+    "url": "https://seu-dominio.com/innochannel/webhooks/reservation",
+    "events": ["reservation.created", "reservation.updated", "reservation.cancelled"],
     "secret": "webhook_secret_seguro"
   }'
 ```
@@ -234,7 +234,7 @@ class HotelController extends Controller
     /**
      * Criar nova reserva
      */
-    public function createBooking(Request $request): JsonResponse
+    public function createReservation(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'property_id' => 'required|string',
@@ -249,12 +249,12 @@ class HotelController extends Controller
         ]);
 
         try {
-            $booking = Innochannel::createBooking($validated);
+            $reservation = Innochannel::createReservation($validated);
 
             return response()->json([
                 'success' => true,
-                'data' => $booking,
-                'booking_id' => $booking['id']
+                'data' => $reservation,
+                'reservation_id' => $reservation['id']
             ], 201);
 
         } catch (\Innochannel\Exceptions\ValidationException $e) {
@@ -310,7 +310,7 @@ use Innochannel\Exceptions\InnochannelException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
-class BookingService
+class ReservationService
 {
     public function __construct(
         private InnochannelClient $innochannel
@@ -319,14 +319,14 @@ class BookingService
     /**
      * Processar nova reserva com validações
      */
-    public function processBooking(array $bookingData): array
+    public function processReservation(array $reservationData): array
     {
         // Validar disponibilidade
         $availability = $this->checkAvailability(
-            $bookingData['property_id'],
-            $bookingData['check_in'],
-            $bookingData['check_out'],
-            $bookingData['rooms']
+            $reservationData['property_id'],
+            $reservationData['check_in'],
+            $reservationData['check_out'],
+            $reservationData['rooms']
         );
 
         if (!$availability['available']) {
@@ -334,31 +334,31 @@ class BookingService
         }
 
         // Calcular preço total
-        $pricing = $this->calculatePricing($bookingData, $availability['rates']);
-        $bookingData['total_amount'] = $pricing['total'];
-        $bookingData['breakdown'] = $pricing['breakdown'];
+        $pricing = $this->calculatePricing($reservationData, $availability['rates']);
+        $reservationData['total_amount'] = $pricing['total'];
+        $reservationData['breakdown'] = $pricing['breakdown'];
 
         // Criar reserva
         try {
-            $booking = $this->innochannel->createBooking($bookingData);
+            $reservation = $this->innochannel->createReservation($reservationData);
             
             // Log da operação
             Log::info('Nova reserva criada', [
-                'booking_id' => $booking['id'],
-                'property_id' => $bookingData['property_id'],
-                'guest_email' => $bookingData['guest']['email'],
-                'total_amount' => $bookingData['total_amount']
+                'reservation_id' => $reservation['id'],
+                'property_id' => $reservationData['property_id'],
+                'guest_email' => $reservationData['guest']['email'],
+                'total_amount' => $reservationData['total_amount']
             ]);
 
             // Limpar cache relacionado
-            $this->clearRelatedCache($bookingData['property_id']);
+            $this->clearRelatedCache($reservationData['property_id']);
 
-            return $booking;
+            return $reservation;
 
         } catch (InnochannelException $e) {
             Log::error('Erro ao criar reserva', [
                 'error' => $e->getMessage(),
-                'booking_data' => $bookingData
+                'reservation_data' => $reservationData
             ]);
             throw $e;
         }
@@ -384,12 +384,12 @@ class BookingService
     /**
      * Calcular preços
      */
-    private function calculatePricing(array $bookingData, array $rates): array
+    private function calculatePricing(array $reservationData, array $rates): array
     {
-        $nights = \Carbon\Carbon::parse($bookingData['check_in'])
-            ->diffInDays(\Carbon\Carbon::parse($bookingData['check_out']));
+        $nights = \Carbon\Carbon::parse($reservationData['check_in'])
+            ->diffInDays(\Carbon\Carbon::parse($reservationData['check_out']));
 
-        $subtotal = $rates['base_rate'] * $nights * $bookingData['rooms'];
+        $subtotal = $rates['base_rate'] * $nights * $reservationData['rooms'];
         $taxes = $subtotal * 0.1; // 10% de impostos
         $total = $subtotal + $taxes;
 
@@ -587,7 +587,7 @@ class SyncInventoryCommand extends Command
 
 O SDK dispara eventos Laravel para todos os webhooks recebidos, permitindo que sua aplicação responda a mudanças em tempo real.
 
-#### 1. BookingWebhookReceived
+#### 1. ReservationWebhookReceived
 
 Disparado quando webhooks de reservas são recebidos.
 
@@ -596,104 +596,104 @@ Disparado quando webhooks de reservas são recebidos.
 
 namespace App\Listeners;
 
-use Innochannel\Laravel\Events\BookingWebhookReceived;
+use Innochannel\Laravel\Events\ReservationWebhookReceived;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\BookingConfirmation;
-use App\Models\LocalBooking;
+use App\Mail\ReservationConfirmation;
+use App\Models\LocalReservation;
 
-class HandleBookingWebhook
+class HandleReservationWebhook
 {
-    public function handle(BookingWebhookReceived $event): void
+    public function handle(ReservationWebhookReceived $event): void
     {
-        $bookingId = $event->getBookingId();
+        $reservationId = $event->getReservationId();
         $eventType = $event->getEventType();
-        $bookingData = $event->getBookingData();
+        $reservationData = $event->getReservationData();
 
         Log::info("Processando webhook de reserva", [
-            'booking_id' => $bookingId,
+            'reservation_id' => $reservationId,
             'event_type' => $eventType,
             'timestamp' => now()
         ]);
 
         match ($eventType) {
-            'booking.created' => $this->handleBookingCreated($bookingData),
-            'booking.updated' => $this->handleBookingUpdated($bookingData),
-            'booking.cancelled' => $this->handleBookingCancelled($bookingData),
-            'booking.modified' => $this->handleBookingModified($bookingData),
-            default => $this->handleUnknownEvent($eventType, $bookingData),
+            'reservation.created' => $this->handleReservationCreated($reservationData),
+            'reservation.updated' => $this->handleReservationUpdated($reservationData),
+            'reservation.cancelled' => $this->handleReservationCancelled($reservationData),
+            'reservation.modified' => $this->handleReservationModified($reservationData),
+            default => $this->handleUnknownEvent($eventType, $reservationData),
         };
     }
 
-    private function handleBookingCreated(array $bookingData): void
+    private function handleReservationCreated(array $reservationData): void
     {
         // Criar registro local
-        $localBooking = LocalBooking::create([
-            'innochannel_id' => $bookingData['id'],
-            'property_id' => $bookingData['property_id'],
-            'guest_name' => $bookingData['guest']['name'],
-            'guest_email' => $bookingData['guest']['email'],
-            'check_in' => $bookingData['check_in'],
-            'check_out' => $bookingData['check_out'],
+        $localReservation = LocalReservation::create([
+            'innochannel_id' => $reservationData['id'],
+            'property_id' => $reservationData['property_id'],
+            'guest_name' => $reservationData['guest']['name'],
+            'guest_email' => $reservationData['guest']['email'],
+            'check_in' => $reservationData['check_in'],
+            'check_out' => $reservationData['check_out'],
             'status' => 'confirmed',
-            'total_amount' => $bookingData['total_amount']
+            'total_amount' => $reservationData['total_amount']
         ]);
 
         // Enviar email de confirmação
-        Mail::to($bookingData['guest']['email'])
-            ->send(new BookingConfirmation($localBooking));
+        Mail::to($reservationData['guest']['email'])
+            ->send(new ReservationConfirmation($localReservation));
 
         // Sincronizar com PMS
-        $this->syncWithPms($bookingData);
+        $this->syncWithPms($reservationData);
 
         Log::info("Nova reserva processada", [
-            'local_id' => $localBooking->id,
-            'innochannel_id' => $bookingData['id']
+            'local_id' => $localReservation->id,
+            'innochannel_id' => $reservationData['id']
         ]);
     }
 
-    private function handleBookingUpdated(array $bookingData): void
+    private function handleReservationUpdated(array $reservationData): void
     {
-        $localBooking = LocalBooking::where('innochannel_id', $bookingData['id'])->first();
+        $localReservation = LocalReservation::where('innochannel_id', $reservationData['id'])->first();
         
-        if ($localBooking) {
-            $localBooking->update([
-                'guest_name' => $bookingData['guest']['name'],
-                'guest_email' => $bookingData['guest']['email'],
-                'check_in' => $bookingData['check_in'],
-                'check_out' => $bookingData['check_out'],
-                'total_amount' => $bookingData['total_amount']
+        if ($localReservation) {
+            $localReservation->update([
+                'guest_name' => $reservationData['guest']['name'],
+                'guest_email' => $reservationData['guest']['email'],
+                'check_in' => $reservationData['check_in'],
+                'check_out' => $reservationData['check_out'],
+                'total_amount' => $reservationData['total_amount']
             ]);
 
             // Notificar sobre mudanças
-            $this->notifyBookingChanges($localBooking, $bookingData['changes'] ?? []);
+            $this->notifyReservationChanges($localReservation, $reservationData['changes'] ?? []);
         }
     }
 
-    private function handleBookingCancelled(array $bookingData): void
+    private function handleReservationCancelled(array $reservationData): void
     {
-        $localBooking = LocalBooking::where('innochannel_id', $bookingData['id'])->first();
+        $localReservation = LocalReservation::where('innochannel_id', $reservationData['id'])->first();
         
-        if ($localBooking) {
-            $localBooking->update(['status' => 'cancelled']);
+        if ($localReservation) {
+            $localReservation->update(['status' => 'cancelled']);
             
             // Processar reembolso se aplicável
-            $this->processRefund($localBooking, $bookingData);
+            $this->processRefund($localReservation, $reservationData);
             
             // Liberar inventário
-            $this->releaseInventory($bookingData);
+            $this->releaseInventory($reservationData);
         }
     }
 
-    private function syncWithPms(array $bookingData): void
+    private function syncWithPms(array $reservationData): void
     {
         // Implementar sincronização com PMS
         // Esta é uma implementação exemplo
         try {
-            \Innochannel::syncBookingWithPms($bookingData['id']);
+            \Innochannel::syncReservationWithPms($reservationData['id']);
         } catch (\Exception $e) {
             Log::error("Erro ao sincronizar com PMS", [
-                'booking_id' => $bookingData['id'],
+                'reservation_id' => $reservationData['id'],
                 'error' => $e->getMessage()
             ]);
         }
@@ -920,7 +920,7 @@ No seu `EventServiceProvider`:
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Innochannel\Laravel\Events\BookingWebhookReceived;
+use Innochannel\Laravel\Events\ReservationWebhookReceived;
 use Innochannel\Laravel\Events\PropertyWebhookReceived;
 use Innochannel\Laravel\Events\InventoryWebhookReceived;
 use Innochannel\Laravel\Events\GeneralWebhookReceived;
@@ -928,9 +928,9 @@ use Innochannel\Laravel\Events\GeneralWebhookReceived;
 class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
-        BookingWebhookReceived::class => [
-            \App\Listeners\HandleBookingWebhook::class,
-            \App\Listeners\UpdateLocalBooking::class,
+        ReservationWebhookReceived::class => [
+            \App\Listeners\HandleReservationWebhook::class,
+            \App\Listeners\UpdateLocalReservation::class,
             \App\Listeners\SyncWithPms::class,
         ],
         
@@ -981,7 +981,7 @@ if (app()->environment('production') && !$request->secure()) {
 ```php
 // ✅ BOM: Tratamento específico de exceções
 try {
-    $booking = Innochannel::createBooking($data);
+    $reservation = Innochannel::createReservation($data);
 } catch (ValidationException $e) {
     // Tratar erros de validação
     return response()->json([
@@ -1029,11 +1029,11 @@ public function clearPropertyCache(string $propertyId): void
 
 ```php
 // ✅ BOM: Logs estruturados
-Log::info('Booking created', [
-    'booking_id' => $booking['id'],
-    'property_id' => $booking['property_id'],
-    'guest_email' => $booking['guest']['email'],
-    'amount' => $booking['total_amount'],
+Log::info('Reservation created', [
+    'reservation_id' => $reservation['id'],
+    'property_id' => $reservation['property_id'],
+    'guest_email' => $reservation['guest']['email'],
+    'amount' => $reservation['total_amount'],
     'source' => 'innochannel_webhook'
 ]);
 
@@ -1068,7 +1068,7 @@ public function handleWebhook(Request $request)
 }
 
 // ✅ BOM: Idempotência
-public function processBookingWebhook(array $webhookData)
+public function processReservationWebhook(array $webhookData)
 {
     $webhookId = $webhookData['webhook_id'];
     
@@ -1079,7 +1079,7 @@ public function processBookingWebhook(array $webhookData)
     }
     
     // Processar
-    $this->handleBookingEvent($webhookData);
+    $this->handleReservationEvent($webhookData);
     
     // Marcar como processado
     Cache::put("processed_webhook:{$webhookId}", true, 86400);
@@ -1140,6 +1140,7 @@ public function syncWithRetry(callable $operation, int $maxRetries = 3): mixed
 **Problema**: `AuthenticationException: Invalid API credentials`
 
 **Soluções**:
+
 ```bash
 # Verificar variáveis de ambiente
 php artisan config:clear
@@ -1157,12 +1158,13 @@ php artisan config:show innochannel
 **Problema**: Webhooks não chegam à aplicação
 
 **Diagnóstico**:
+
 ```bash
 # Verificar logs do servidor web
 tail -f /var/log/nginx/error.log
 
 # Testar endpoint manualmente
-curl -X POST https://seu-dominio.com/innochannel/webhooks/booking \
+curl -X POST https://seu-dominio.com/innochannel/webhooks/reservation \
   -H "Content-Type: application/json" \
   -d '{"test": true}'
 
@@ -1171,11 +1173,12 @@ sudo ufw status
 ```
 
 **Soluções**:
+
 ```php
 // Verificar middleware
 Route::post('/innochannel/webhooks/{type}', [WebhookController::class, 'handle'])
     ->middleware(['api'])  // Remover auth se necessário
-    ->where('type', 'booking|property|inventory|general');
+    ->where('type', 'reservation|property|inventory|general');
 
 // Debug de webhooks
 Log::info('Webhook received', [
@@ -1190,6 +1193,7 @@ Log::info('Webhook received', [
 **Problema**: Lentidão nas chamadas da API
 
 **Diagnóstico**:
+
 ```php
 // Adicionar logging de performance
 $start = microtime(true);
@@ -1204,6 +1208,7 @@ Log::info('API Performance', [
 ```
 
 **Soluções**:
+
 ```php
 // Implementar cache agressivo
 $properties = Cache::remember('properties:all', 1800, function () {
@@ -1227,6 +1232,7 @@ if ($this->circuitBreaker->isOpen()) {
 **Problema**: Dados inconsistentes entre sistemas
 
 **Diagnóstico**:
+
 ```bash
 # Verificar logs de sincronização
 php artisan log:show --filter="sync"
@@ -1241,6 +1247,7 @@ ORDER BY last_sync_at DESC;
 ```
 
 **Soluções**:
+
 ```php
 // Implementar reconciliação
 public function reconcileData(string $propertyId): array
@@ -1272,6 +1279,7 @@ public function validateDataIntegrity(array $data): bool
 **Problema**: `RateLimitException: Too many requests`
 
 **Soluções**:
+
 ```php
 // Implementar retry com backoff
 public function callWithRetry(callable $operation, int $maxRetries = 3): mixed
@@ -1469,16 +1477,19 @@ if ($errorRate > 0.05) { // 5% de erro
 ## 📞 Suporte e Recursos
 
 ### Documentação Adicional
+
 - [API Reference](https://docs.innochannel.com/api)
 - [Webhook Guide](https://docs.innochannel.com/webhooks)
 - [PMS Integration](https://docs.innochannel.com/pms)
 
 ### Suporte Técnico
-- **Email**: support@innochannel.com
+
+- **Email**: <support@innochannel.com>
 - **Slack**: [Innochannel Developers](https://innochannel-dev.slack.com)
 - **GitHub Issues**: [innochannel/laravel-sdk](https://github.com/innochannel/laravel-sdk/issues)
 
 ### Recursos da Comunidade
+
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/innochannel)
 - [Discord Server](https://discord.gg/innochannel)
 - [Developer Blog](https://blog.innochannel.com/developers)

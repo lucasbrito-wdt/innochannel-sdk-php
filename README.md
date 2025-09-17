@@ -1,6 +1,6 @@
 # Innochannel Laravel SDK
 
-A comprehensive Laravel package for integrating with the Innochannel API, providing seamless connectivity between your Laravel application and the Innochannel platform for property management, booking synchronization, and inventory management.
+A comprehensive Laravel package for integrating with the Innochannel API, providing seamless connectivity between your Laravel application and the Innochannel platform for property management, reservation synchronization, and inventory management.
 
 ## Features
 
@@ -9,7 +9,7 @@ A comprehensive Laravel package for integrating with the Innochannel API, provid
 - **PMS Synchronization**: Bidirectional sync with Property Management Systems
 - **Caching System**: Built-in caching for improved performance
 - **Database Migrations**: Ready-to-use database tables for webhooks and sync status
-- **Event System**: Laravel events for booking, property, inventory, and general webhooks
+- **Event System**: Laravel events for reservation, property, inventory, and general webhooks
 - **Artisan Commands**: Installation, testing, and synchronization commands
 - **Configuration Management**: Flexible configuration system
 
@@ -34,6 +34,7 @@ php artisan innochannel:install
 ```
 
 This command will:
+
 - Publish configuration files
 - Run database migrations
 - Create necessary storage directories
@@ -91,8 +92,8 @@ use Innochannel;
 // Get property information
 $property = Innochannel::getProperty('property-id');
 
-// Create a booking
-$booking = Innochannel::createBooking([
+// Create a reservation
+$reservation = Innochannel::createReservation([
     'property_id' => 'property-id',
     'guest' => [
         'name' => 'John Doe',
@@ -117,17 +118,17 @@ Innochannel::updateInventory('property-id', [
 ```php
 use Innochannel\Core\InnochannelClient;
 
-class BookingController extends Controller
+class ReservationController extends Controller
 {
     public function __construct(
         private InnochannelClient $innochannel
     ) {}
 
-    public function createBooking(Request $request)
+    public function createReservation(Request $request)
     {
-        $booking = $this->innochannel->createBooking($request->validated());
+        $reservation = $this->innochannel->createReservation($request->validated());
         
-        return response()->json($booking);
+        return response()->json($reservation);
     }
 }
 ```
@@ -232,8 +233,8 @@ $ratePlan = $client->properties()->createRatePlan(123, [
     'restrictions' => [
         'min_stay' => 1,
         'max_stay' => 30,
-        'min_advance_booking' => 0,
-        'max_advance_booking' => 365
+        'min_advance_reservation' => 0,
+        'max_advance_reservation' => 365
     ],
     'cancellation_policy' => [
         'free_cancellation_until' => 1,
@@ -387,13 +388,14 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 
 ## 🆘 Suporte
 
-- 📧 Email: dev@innotel.com.br
-- 📚 Documentação: https://docs.innotel.com.br
-- 🐛 Issues: https://github.com/innotel/channel-manager-sdk-php/issues
+- 📧 Email: <dev@innotel.com.br>
+- 📚 Documentação: <https://docs.innotel.com.br>
+- 🐛 Issues: <https://github.com/innotel/channel-manager-sdk-php/issues>
 
 ## 📈 Changelog
 
 ### v1.0.0
+
 - Lançamento inicial
 - Suporte completo à API do Channel Manager
 - Gerenciamento de propriedades, quartos e tarifas

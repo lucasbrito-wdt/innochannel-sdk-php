@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Innochannel\Sdk\Events\EventDispatcher;
 use Innochannel\Sdk\Events\EventDispatcherInterface;
-use Innochannel\Sdk\Models\Booking;
+use Innochannel\Sdk\Models\Reservation;
 use Innochannel\Sdk\Models\Property;
 use Innochannel\Sdk\Models\RatePlan;
 use Innochannel\Sdk\Models\Room;
@@ -76,8 +76,8 @@ class InnochannelEventsServiceProvider extends ServiceProvider
         $dispatcher = $this->app->make(EventDispatcherInterface::class);
 
         // Configura o dispatcher nos modelos que usam HasEvents
-        if (method_exists(Booking::class, 'setEventDispatcher')) {
-            Booking::setEventDispatcher($dispatcher);
+        if (method_exists(Reservation::class, 'setEventDispatcher')) {
+            Reservation::setEventDispatcher($dispatcher);
         }
 
         if (method_exists(Property::class, 'setEventDispatcher')) {
@@ -109,7 +109,7 @@ class InnochannelEventsServiceProvider extends ServiceProvider
             foreach ($listeners as $listenerClass) {
                 if (is_string($listenerClass) && class_exists($listenerClass)) {
                     $listener = $this->app->make($listenerClass);
-                    
+
                     if (is_callable($listener)) {
                         $dispatcher->addListener($eventName, $listener);
                     } elseif (method_exists($listener, 'handle')) {
@@ -133,7 +133,7 @@ class InnochannelEventsServiceProvider extends ServiceProvider
         $dispatcher->addListener('*', function ($event) use ($logChannel, $logLevel) {
             if ($event instanceof \Innochannel\Sdk\Events\EventInterface) {
                 $logger = \Illuminate\Support\Facades\Log::channel($logChannel);
-                
+
                 $logger->log($logLevel, 'Innochannel Event Dispatched', [
                     'event_name' => $event->getName(),
                     'timestamp' => $event->getTimestamp()->format('c'),

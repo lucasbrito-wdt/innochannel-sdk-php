@@ -7,38 +7,37 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Event;
-use Innochannel\Laravel\Events\BookingWebhookReceived;
-use Innochannel\Laravel\Events\PropertyWebhookReceived;
-use Innochannel\Laravel\Events\InventoryWebhookReceived;
-use Innochannel\Laravel\Events\GeneralWebhookReceived;
+use Innochannel\Sdk\Laravel\Events\ReservationWebhookReceived;
+use Innochannel\Sdk\Laravel\Events\PropertyWebhookReceived;
+use Innochannel\Sdk\Laravel\Events\InventoryWebhookReceived;
+use Innochannel\Sdk\Laravel\Events\GeneralWebhookReceived;
 use Exception;
 
 class WebhookController extends Controller
 {
     /**
-     * Handle booking webhook.
+     * Handle reservation webhook.
      */
-    public function handleBookingWebhook(Request $request): JsonResponse
+    public function handleReservationWebhook(Request $request): JsonResponse
     {
         try {
             $payload = $request->all();
-            
-            Log::info('Booking webhook received', [
+
+            Log::info('Reservation webhook received', [
                 'event_type' => $payload['event_type'] ?? 'unknown',
-                'booking_id' => $payload['data']['id'] ?? null,
+                'reservation_id' => $payload['data']['id'] ?? null,
                 'timestamp' => now(),
             ]);
 
             // Fire event for application to handle
-            Event::dispatch(new BookingWebhookReceived($payload, $request->headers->all()));
+            Event::dispatch(new ReservationWebhookReceived($payload, $request->headers->all()));
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Booking webhook processed successfully'
+                'message' => 'Reservation webhook processed successfully'
             ]);
-
         } catch (Exception $e) {
-            Log::error('Failed to process booking webhook', [
+            Log::error('Failed to process reservation webhook', [
                 'error' => $e->getMessage(),
                 'payload' => $request->all(),
             ]);
@@ -57,7 +56,7 @@ class WebhookController extends Controller
     {
         try {
             $payload = $request->all();
-            
+
             Log::info('Property webhook received', [
                 'event_type' => $payload['event_type'] ?? 'unknown',
                 'property_id' => $payload['data']['id'] ?? null,
@@ -71,7 +70,6 @@ class WebhookController extends Controller
                 'status' => 'success',
                 'message' => 'Property webhook processed successfully'
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to process property webhook', [
                 'error' => $e->getMessage(),
@@ -92,7 +90,7 @@ class WebhookController extends Controller
     {
         try {
             $payload = $request->all();
-            
+
             Log::info('Inventory webhook received', [
                 'event_type' => $payload['event_type'] ?? 'unknown',
                 'property_id' => $payload['data']['property_id'] ?? null,
@@ -106,7 +104,6 @@ class WebhookController extends Controller
                 'status' => 'success',
                 'message' => 'Inventory webhook processed successfully'
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to process inventory webhook', [
                 'error' => $e->getMessage(),
@@ -127,7 +124,7 @@ class WebhookController extends Controller
     {
         try {
             $payload = $request->all();
-            
+
             Log::info('General webhook received', [
                 'event_type' => $payload['event_type'] ?? 'unknown',
                 'timestamp' => now(),
@@ -140,7 +137,6 @@ class WebhookController extends Controller
                 'status' => 'success',
                 'message' => 'General webhook processed successfully'
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to process general webhook', [
                 'error' => $e->getMessage(),
@@ -189,7 +185,6 @@ class WebhookController extends Controller
                 'status' => 'success',
                 'message' => 'OAuth callback processed successfully'
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to process OAuth callback', [
                 'error' => $e->getMessage(),
@@ -210,7 +205,7 @@ class WebhookController extends Controller
     {
         try {
             $payload = $request->all();
-            
+
             Log::info('PMS callback received', [
                 'pms_system' => $payload['pms_system'] ?? 'unknown',
                 'callback_type' => $payload['callback_type'] ?? 'unknown',
@@ -223,7 +218,6 @@ class WebhookController extends Controller
                 'status' => 'success',
                 'message' => 'PMS callback processed successfully'
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to process PMS callback', [
                 'error' => $e->getMessage(),

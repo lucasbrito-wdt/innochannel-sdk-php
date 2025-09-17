@@ -116,7 +116,7 @@ class TestHelper
     {
         $firstName = 'Guest' . rand(1, 1000);
         $lastName = 'Test' . rand(1, 1000);
-        
+
         return array_merge([
             'firstName' => $firstName,
             'lastName' => $lastName,
@@ -124,10 +124,11 @@ class TestHelper
             'phone' => '+55 11 9' . rand(1000, 9999) . '-' . rand(1000, 9999),
             'document' => [
                 'type' => 'cpf',
-                'number' => sprintf('%03d.%03d.%03d-%02d', 
-                    rand(100, 999), 
-                    rand(100, 999), 
-                    rand(100, 999), 
+                'number' => sprintf(
+                    '%03d.%03d.%03d-%02d',
+                    rand(100, 999),
+                    rand(100, 999),
+                    rand(100, 999),
                     rand(10, 99)
                 )
             ],
@@ -151,7 +152,7 @@ class TestHelper
         $checkIn = date('Y-m-d', strtotime('+' . rand(1, 30) . ' days'));
         $checkOut = date('Y-m-d', strtotime($checkIn . ' +' . rand(1, 7) . ' days'));
         $nights = (strtotime($checkOut) - strtotime($checkIn)) / (60 * 60 * 24);
-        
+
         return array_merge([
             'id' => 'reservation-' . uniqid(),
             'propertyId' => 'prop-123',
@@ -182,7 +183,7 @@ class TestHelper
                 'status' => 'paid',
                 'transactionId' => 'txn-' . uniqid()
             ],
-            'source' => 'booking.com',
+            'source' => 'reservations.com',
             'specialRequests' => 'Test special request',
             'createdAt' => date('c'),
             'updatedAt' => date('c')

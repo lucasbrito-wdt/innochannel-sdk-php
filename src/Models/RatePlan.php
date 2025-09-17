@@ -39,7 +39,7 @@ class RatePlan
     private bool $isActive;
     private DateTimeInterface $createdAt;
     private DateTimeInterface $updatedAt;
-    
+
     /**
      * Construtor da classe RatePlan
      * 
@@ -59,14 +59,14 @@ class RatePlan
         $this->isActive = $data['is_active'] ?? true;
         $this->createdAt = isset($data['created_at']) ? new DateTime($data['created_at']) : new DateTime();
         $this->updatedAt = isset($data['updated_at']) ? new DateTime($data['updated_at']) : new DateTime();
-        
+
         $this->initializeEvents();
-        
+
         if (!empty($data)) {
             $this->fireEvent(new RatePlanCreatedEvent($this));
         }
     }
-    
+
     /**
      * Criar instância a partir de array
      */
@@ -74,7 +74,7 @@ class RatePlan
     {
         return new self($data);
     }
-    
+
     /**
      * Converter para array
      */
@@ -95,117 +95,117 @@ class RatePlan
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
         ];
     }
-    
+
     // Getters
     public function getId(): int|string
     {
         return $this->id;
     }
-    
+
     public function getPropertyId(): int|string
     {
         return $this->propertyId;
     }
-    
+
     public function getName(): string
     {
         return $this->name;
     }
-    
+
     public function getDescription(): ?string
     {
         return $this->description;
     }
-    
+
     public function getCurrency(): string
     {
         return $this->currency;
     }
-    
+
     public function getRateType(): string
     {
         return $this->rateType;
     }
-    
+
     public function getRestrictions(): array
     {
         return $this->restrictions;
     }
-    
+
     public function getCancellationPolicy(): array
     {
         return $this->cancellationPolicy;
     }
-    
+
     public function isRefundable(): bool
     {
         return $this->isRefundable;
     }
-    
+
     public function isActive(): bool
     {
         return $this->isActive;
     }
-    
+
     public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
     }
-    
+
     public function getUpdatedAt(): DateTimeInterface
     {
         return $this->updatedAt;
     }
-    
+
     // Setters
     public function setName(string $name): self
     {
         $this->name = $name;
         return $this;
     }
-    
+
     public function setDescription(?string $description): self
     {
         $this->description = $description;
         return $this;
     }
-    
+
     public function setCurrency(string $currency): self
     {
         $this->currency = $currency;
         return $this;
     }
-    
+
     public function setRateType(string $rateType): self
     {
         $this->rateType = $rateType;
         return $this;
     }
-    
+
     public function setRestrictions(array $restrictions): self
     {
         $this->restrictions = $restrictions;
         return $this;
     }
-    
+
     public function setCancellationPolicy(array $cancellationPolicy): self
     {
         $this->cancellationPolicy = $cancellationPolicy;
         return $this;
     }
-    
+
     public function setIsRefundable(bool $isRefundable): self
     {
         $this->isRefundable = $isRefundable;
         return $this;
     }
-    
+
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
         return $this;
     }
-    
+
     /**
      * Obter restrição específica
      */
@@ -213,7 +213,7 @@ class RatePlan
     {
         return $this->restrictions[$key] ?? null;
     }
-    
+
     /**
      * Definir restrição
      */
@@ -222,7 +222,7 @@ class RatePlan
         $this->restrictions[$key] = $value;
         return $this;
     }
-    
+
     /**
      * Verificar se tem restrição específica
      */
@@ -230,7 +230,7 @@ class RatePlan
     {
         return isset($this->restrictions[$key]);
     }
-    
+
     /**
      * Obter estadia mínima
      */
@@ -238,7 +238,7 @@ class RatePlan
     {
         return $this->getRestriction('min_stay');
     }
-    
+
     /**
      * Definir estadia mínima
      */
@@ -246,7 +246,7 @@ class RatePlan
     {
         return $this->setRestriction('min_stay', $minStay);
     }
-    
+
     /**
      * Obter estadia máxima
      */
@@ -254,7 +254,7 @@ class RatePlan
     {
         return $this->getRestriction('max_stay');
     }
-    
+
     /**
      * Definir estadia máxima
      */
@@ -262,67 +262,67 @@ class RatePlan
     {
         return $this->setRestriction('max_stay', $maxStay);
     }
-    
+
     /**
      * Obter antecedência mínima para reserva
      */
-    public function getMinAdvanceBooking(): ?int
+    public function getMinAdvanceReservation(): ?int
     {
         return $this->getRestriction('min_advance_booking');
     }
-    
+
     /**
      * Definir antecedência mínima para reserva
      */
-    public function setMinAdvanceBooking(int $days): self
+    public function setMinAdvanceReservation(int $days): self
     {
         return $this->setRestriction('min_advance_booking', $days);
     }
-    
+
     /**
      * Obter antecedência máxima para reserva
      */
-    public function getMaxAdvanceBooking(): ?int
+    public function getMaxAdvanceReservation(): ?int
     {
         return $this->getRestriction('max_advance_booking');
     }
-    
+
     /**
      * Definir antecedência máxima para reserva
      */
-    public function setMaxAdvanceBooking(int $days): self
+    public function setMaxAdvanceReservation(int $days): self
     {
         return $this->setRestriction('max_advance_booking', $days);
     }
-    
+
     /**
      * Verificar se permite check-in em dia específico
      */
     public function allowsCheckinOnDay(string $dayOfWeek): bool
     {
         $allowedDays = $this->getRestriction('allowed_checkin_days');
-        
+
         if (!is_array($allowedDays)) {
             return true; // Se não há restrição, permite todos os dias
         }
-        
+
         return in_array(strtolower($dayOfWeek), array_map('strtolower', $allowedDays));
     }
-    
+
     /**
      * Verificar se permite check-out em dia específico
      */
     public function allowsCheckoutOnDay(string $dayOfWeek): bool
     {
         $allowedDays = $this->getRestriction('allowed_checkout_days');
-        
+
         if (!is_array($allowedDays)) {
             return true; // Se não há restrição, permite todos os dias
         }
-        
+
         return in_array(strtolower($dayOfWeek), array_map('strtolower', $allowedDays));
     }
-    
+
     /**
      * Obter política de cancelamento formatada
      */
@@ -331,17 +331,17 @@ class RatePlan
         if (empty($this->cancellationPolicy)) {
             return $this->isRefundable ? 'Reembolsável' : 'Não reembolsável';
         }
-        
+
         $policy = [];
-        
+
         if (isset($this->cancellationPolicy['free_cancellation_until'])) {
             $policy[] = "Cancelamento gratuito até {$this->cancellationPolicy['free_cancellation_until']} dias antes";
         }
-        
+
         if (isset($this->cancellationPolicy['penalty_percentage'])) {
             $policy[] = "Multa de {$this->cancellationPolicy['penalty_percentage']}% após o prazo";
         }
-        
+
         return implode('. ', $policy) ?: ($this->isRefundable ? 'Reembolsável' : 'Não reembolsável');
     }
 }

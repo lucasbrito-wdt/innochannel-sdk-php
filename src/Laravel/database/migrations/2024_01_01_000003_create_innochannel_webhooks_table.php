@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('innochannel_webhooks', function (Blueprint $table) {
             $table->id();
-            $table->string('event_type', 100)->index(); // booking.created, property.updated, etc.
+            $table->string('event_type', 100)->index(); // reservation.created, property.updated, etc.
             $table->string('webhook_id', 100)->unique(); // Unique identifier from Innochannel
             $table->json('payload'); // The webhook payload
             $table->string('status', 20)->default('pending')->index(); // pending, processing, completed, failed

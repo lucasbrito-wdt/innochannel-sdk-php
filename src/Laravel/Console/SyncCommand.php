@@ -4,7 +4,7 @@ namespace Innochannel\Laravel\Console;
 
 use Illuminate\Console\Command;
 use Innochannel\Laravel\Facades\Innochannel;
-use Innochannel\Laravel\Facades\InnochannelBooking;
+use Innochannel\Laravel\Facades\InnochannelReservation;
 use Innochannel\Laravel\Facades\InnochannelProperty;
 use Innochannel\Laravel\Facades\InnochannelInventory;
 use Exception;
@@ -15,7 +15,7 @@ class SyncCommand extends Command
      * The name and signature of the console command.
      */
     protected $signature = 'innochannel:sync 
-                            {type : Type of sync (bookings, properties, inventory, all)}
+                            {type : Type of sync (reservations, properties, inventory, all)}
                             {--id= : Specific ID to sync}
                             {--property-id= : Property ID for inventory sync}
                             {--force : Force sync even if recently synced}
@@ -43,21 +43,21 @@ class SyncCommand extends Command
 
         try {
             switch ($type) {
-                case 'bookings':
-                    return $this->syncBookings($isDryRun);
-                
+                case 'reservations':
+                    return $this->syncReservations($isDryRun);
+
                 case 'properties':
                     return $this->syncProperties($isDryRun);
-                
+
                 case 'inventory':
                     return $this->syncInventory($isDryRun);
-                
+
                 case 'all':
                     return $this->syncAll($isDryRun);
-                
+
                 default:
                     $this->error("Invalid sync type: {$type}");
-                    $this->info('Available types: bookings, properties, inventory, all');
+                    $this->info('Available types: reservations, properties, inventory, all');
                     return self::FAILURE;
             }
         } catch (Exception $e) {
@@ -67,42 +67,42 @@ class SyncCommand extends Command
     }
 
     /**
-     * Sync bookings with PMS.
+     * Sync reservations with PMS.
      */
-    protected function syncBookings(bool $isDryRun): int
+    protected function syncReservations(bool $isDryRun): int
     {
         $specificId = $this->option('id');
 
         if ($specificId) {
-            $this->info("Syncing booking: {$specificId}");
-            
+            $this->info("Syncing reservation: {$specificId}");
+
             if (!$isDryRun) {
-                $result = InnochannelBooking::syncWithPms($specificId);
-                $this->displaySyncResult('Booking', $specificId, $result);
+                $result = InnochannelReservation::syncWithPms($specificId);
+                $this->displaySyncResult('Reservation', $specificId, $result);
             } else {
-                $this->info("Would sync booking: {$specificId}");
+                $this->info("Would sync reservation: {$specificId}");
             }
         } else {
-            $this->info('Syncing all bookings...');
-            
-            // Get bookings that need sync
-            $bookings = InnochannelBooking::getBookings([
+            $this->info('Syncing all reservations...');
+
+            // Get reservations that need sync
+            $reservations = InnochannelReservation::getReservations([
                 'needs_sync' => true,
                 'limit' => 100
             ]);
 
-            $this->info("Found " . count($bookings) . " bookings to sync");
+            $this->info("Found " . count($reservations) . " reservations to sync");
 
             if (!$isDryRun) {
-                $bar = $this->output->createProgressBar(count($bookings));
+                $bar = $this->output->createProgressBar(count($reservations));
                 $bar->start();
 
-                foreach ($bookings as $booking) {
+                foreach ($reservations as $reservation) {
                     try {
-                        $result = InnochannelBooking::syncWithPms($booking->id);
+                        $result = InnochannelReservation::syncWithPms($reservation->id);
                         $bar->advance();
                     } catch (Exception $e) {
-                        $this->error("Failed to sync booking {$booking->id}: {$e->getMessage()}");
+                        $this->error("Failed to sync reservation {$reservation->id}: {$e->getMessage()}");
                     }
                 }
 
@@ -111,7 +111,7 @@ class SyncCommand extends Command
             }
         }
 
-        $this->info('✓ Booking sync completed');
+        $this->info('✓ Reservation sync completed');
         return self::SUCCESS;
     }
 
@@ -124,7 +124,7 @@ class SyncCommand extends Command
 
         if ($specificId) {
             $this->info("Syncing property: {$specificId}");
-            
+
             if (!$isDryRun) {
                 $result = InnochannelProperty::syncWithPms($specificId);
                 $this->displaySyncResult('Property', $specificId, $result);
@@ -133,7 +133,7 @@ class SyncCommand extends Command
             }
         } else {
             $this->info('Syncing all properties...');
-            
+
             $properties = InnochannelProperty::getProperties(['limit' => 50]);
             $this->info("Found " . count($properties) . " properties to sync");
 
@@ -193,14 +193,14 @@ class SyncCommand extends Command
 
         // Sync properties first
         $this->syncProperties($isDryRun);
-        
-        // Then sync bookings
-        $this->syncBookings($isDryRun);
+
+        // Then sync reservations
+        $this->syncReservations($isDryRun);
 
         // Finally sync inventory for each property
         if (!$isDryRun) {
             $properties = InnochannelProperty::getProperties(['limit' => 50]);
-            
+
             foreach ($properties as $property) {
                 try {
                     InnochannelInventory::syncWithPms($property->id);

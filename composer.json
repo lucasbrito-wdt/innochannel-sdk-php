@@ -17,7 +17,6 @@
     "pms",
     "ota",
     "channel-manager",
-    "booking",
     "reservation",
     "hospitality",
     "tourism",
@@ -100,7 +99,7 @@
       ],
       "aliases": {
         "Innochannel": "Innochannel\\Laravel\\Facades\\Innochannel",
-        "InnochannelBooking": "Innochannel\\Laravel\\Facades\\InnochannelBooking",
+        "InnochannelReservation": "Innochannel\\Laravel\\Facades\\InnochannelReservation",
         "InnochannelProperty": "Innochannel\\Laravel\\Facades\\InnochannelProperty",
         "InnochannelInventory": "Innochannel\\Laravel\\Facades\\InnochannelInventory"
       }

@@ -124,7 +124,7 @@ class PropertyWebhookListener
         // Add your custom logic here
         // For example:
         // - Archive property data
-        // - Cancel active bookings
+        // - Cancel active reservations
         // - Remove from search indexes
         // - Notify property owner
         // - Clean up related data
@@ -147,7 +147,7 @@ class PropertyWebhookListener
         // Add your custom logic here
         // For example:
         // - Update property availability
-        // - Adjust booking rules
+        // - Adjust reservations rules
         // - Send status change notifications
         // - Update PMS status
         // - Handle maintenance mode

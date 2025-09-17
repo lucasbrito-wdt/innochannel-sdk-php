@@ -5,12 +5,12 @@ namespace Innochannel\Laravel\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static \Innochannel\Models\Booking[] getBookings(array $filters = [])
- * @method static \Innochannel\Models\Booking getBooking(string $id)
- * @method static \Innochannel\Models\Booking createBooking(array $data)
- * @method static \Innochannel\Models\Booking updateBooking(string $id, array $data)
- * @method static bool cancelBooking(string $id, array $options = [])
- * @method static array syncBookingWithPms(string $id, array $options = [])
+ * @method static \Innochannel\Models\Reservation[] getReservations(array $filters = [])
+ * @method static \Innochannel\Models\Reservation getReservation(string $id)
+ * @method static \Innochannel\Models\Reservation createReservation(array $data)
+ * @method static \Innochannel\Models\Reservation updateReservation(string $id, array $data)
+ * @method static bool cancelReservation(string $id, array $options = [])
+ * @method static array syncReservationWithPms(string $id, array $options = [])
  * @method static \Innochannel\Models\Property[] getProperties(array $filters = [])
  * @method static \Innochannel\Models\Property getProperty(string $id)
  * @method static \Innochannel\Models\Property updateProperty(string $id, array $data)

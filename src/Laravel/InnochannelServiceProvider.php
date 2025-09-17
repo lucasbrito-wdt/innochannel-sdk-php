@@ -4,7 +4,6 @@ namespace Innochannel\Laravel;
 
 use Illuminate\Support\ServiceProvider;
 use Innochannel\Sdk\Client;
-use Innochannel\Sdk\Services\BookingService;
 use Innochannel\Sdk\Services\PropertyService;
 use Innochannel\Sdk\Services\InventoryService;
 use Innochannel\Sdk\Services\WebhookService;
@@ -130,7 +129,7 @@ class InnochannelServiceProvider extends ServiceProvider
         // Register event listeners for Innochannel events
         $events = $this->app['events'];
 
-        // Booking events
+        // Reservation events
         $events->listen('innochannel.reservation.created', function ($reservation) {
             \Log::info('Innochannel reservation created', ['reservation_id' => $reservation->id]);
         });
