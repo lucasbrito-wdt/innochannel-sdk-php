@@ -30,7 +30,7 @@ class InnochannelServiceProvider extends ServiceProvider
         // Register the main client
         $this->app->singleton(Client::class, function ($app) {
             $config = $app['config']['innochannel'];
-            
+
             return new Client(
                 $config['api_key'],
                 $config['base_url'],
@@ -70,36 +70,36 @@ class InnochannelServiceProvider extends ServiceProvider
     {
         // Publish configuration
         $this->publishes([
-            __DIR__ . '/../../config/innochannel.php' => config_path('innochannel.php'),
+            __DIR__ . '/config/innochannel.php' => config_path('innochannel.php'),
         ], 'innochannel-config');
 
         // Publish migrations
         $this->publishes([
-            __DIR__ . '/../../database/migrations/' => database_path('migrations'),
+            __DIR__ . '/database/migrations/' => database_path('migrations'),
         ], 'innochannel-migrations');
 
         // Publish views
         $this->publishes([
-            __DIR__ . '/../../resources/views/' => resource_path('views/vendor/innochannel'),
+            __DIR__ . '/resources/views/' => resource_path('views/vendor/innochannel'),
         ], 'innochannel-views');
 
         // Publish language files
         $this->publishes([
-            __DIR__ . '/../../resources/lang/' => resource_path('lang/vendor/innochannel'),
+            __DIR__ . '/resources/lang/' => resource_path('lang/vendor/innochannel'),
         ], 'innochannel-lang');
 
         // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
         // Load views
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'innochannel');
+        $this->loadViewsFrom(__DIR__ . '/resources/views', 'innochannel');
 
         // Load translations
-        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'innochannel');
+        $this->loadTranslationsFrom(__DIR__ . '/resources/lang', 'innochannel');
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+        $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
+        $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
 
         // Register middleware
         $this->app['router']->aliasMiddleware('innochannel.auth', InnochannelAuth::class);
