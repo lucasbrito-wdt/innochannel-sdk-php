@@ -138,22 +138,73 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Event Configuration
+    | Events Configuration
     |--------------------------------------------------------------------------
     |
-    | Configure which events should be fired and listened to.
+    | Configuration for the event system
     |
     */
     'events' => [
         'enabled' => env('INNOCHANNEL_EVENTS_ENABLED', true),
         'async' => env('INNOCHANNEL_EVENTS_ASYNC', true),
         'queue' => env('INNOCHANNEL_EVENTS_QUEUE', 'default'),
-        'listeners' => [
-            'booking_created' => true,
-            'booking_updated' => true,
-            'booking_cancelled' => true,
-            'property_updated' => true,
-            'inventory_updated' => true,
+        
+        // Model Events Configuration
+        'model_events' => [
+            'booking' => [
+                'created' => env('INNOCHANNEL_BOOKING_CREATED_ENABLED', true),
+                'updated' => env('INNOCHANNEL_BOOKING_UPDATED_ENABLED', true),
+                'cancelled' => env('INNOCHANNEL_BOOKING_CANCELLED_ENABLED', true),
+                'confirmed' => env('INNOCHANNEL_BOOKING_CONFIRMED_ENABLED', true),
+                'deleted' => env('INNOCHANNEL_BOOKING_DELETED_ENABLED', true),
+            ],
+            'property' => [
+                'created' => env('INNOCHANNEL_PROPERTY_CREATED_ENABLED', true),
+                'updated' => env('INNOCHANNEL_PROPERTY_UPDATED_ENABLED', true),
+                'activated' => env('INNOCHANNEL_PROPERTY_ACTIVATED_ENABLED', true),
+                'deactivated' => env('INNOCHANNEL_PROPERTY_DEACTIVATED_ENABLED', true),
+                'deleted' => env('INNOCHANNEL_PROPERTY_DELETED_ENABLED', true),
+                'pms_credentials_updated' => env('INNOCHANNEL_PROPERTY_PMS_CREDENTIALS_UPDATED_ENABLED', true),
+            ],
+            'rate_plan' => [
+                'created' => env('INNOCHANNEL_RATE_PLAN_CREATED_ENABLED', true),
+                'updated' => env('INNOCHANNEL_RATE_PLAN_UPDATED_ENABLED', true),
+                'activated' => env('INNOCHANNEL_RATE_PLAN_ACTIVATED_ENABLED', true),
+                'deactivated' => env('INNOCHANNEL_RATE_PLAN_DEACTIVATED_ENABLED', true),
+                'deleted' => env('INNOCHANNEL_RATE_PLAN_DELETED_ENABLED', true),
+                'restrictions_updated' => env('INNOCHANNEL_RATE_PLAN_RESTRICTIONS_UPDATED_ENABLED', true),
+                'cancellation_policy_updated' => env('INNOCHANNEL_RATE_PLAN_CANCELLATION_POLICY_UPDATED_ENABLED', true),
+            ],
+            'room' => [
+                'created' => env('INNOCHANNEL_ROOM_CREATED_ENABLED', true),
+                'updated' => env('INNOCHANNEL_ROOM_UPDATED_ENABLED', true),
+                'activated' => env('INNOCHANNEL_ROOM_ACTIVATED_ENABLED', true),
+                'deactivated' => env('INNOCHANNEL_ROOM_DEACTIVATED_ENABLED', true),
+                'deleted' => env('INNOCHANNEL_ROOM_DELETED_ENABLED', true),
+                'amenities_updated' => env('INNOCHANNEL_ROOM_AMENITIES_UPDATED_ENABLED', true),
+                'bed_types_updated' => env('INNOCHANNEL_ROOM_BED_TYPES_UPDATED_ENABLED', true),
+                'capacity_updated' => env('INNOCHANNEL_ROOM_CAPACITY_UPDATED_ENABLED', true),
+            ],
+        ],
+        
+        // Event Logging Configuration
+        'logging' => [
+            'enabled' => env('INNOCHANNEL_EVENTS_LOGGING_ENABLED', false),
+            'channel' => env('INNOCHANNEL_EVENTS_LOG_CHANNEL', 'default'),
+            'level' => env('INNOCHANNEL_EVENTS_LOG_LEVEL', 'info'),
+        ],
+        
+        // Performance Configuration
+        'performance' => [
+            'max_listeners_per_event' => env('INNOCHANNEL_MAX_LISTENERS_PER_EVENT', 0),
+            'listener_timeout' => env('INNOCHANNEL_LISTENER_TIMEOUT', 0),
+            'stop_on_failure' => env('INNOCHANNEL_STOP_ON_FAILURE', false),
+        ],
+        
+        // Debug Configuration
+        'debug' => [
+            'enabled' => env('INNOCHANNEL_EVENTS_DEBUG', false),
+            'collect_stats' => env('INNOCHANNEL_EVENTS_COLLECT_STATS', false),
         ],
     ],
 
