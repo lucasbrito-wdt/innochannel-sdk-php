@@ -351,17 +351,133 @@ class PropertyService
         $errors = [];
 
         if ($isCreate) {
+            // Campos obrigatórios para criação
+            if (empty($data['property_id_in_pms'])) {
+                $errors['property_id_in_pms'] = ['Property ID in PMS is required'];
+            }
+
             if (empty($data['property_name'])) {
                 $errors['property_name'] = ['Property name is required'];
             }
+
+            if (empty($data['address'])) {
+                $errors['address'] = ['Address is required'];
+            }
+
+            if (empty($data['city'])) {
+                $errors['city'] = ['City is required'];
+            }
+
+            if (empty($data['country'])) {
+                $errors['country'] = ['Country is required'];
+            }
         }
 
-        if (isset($data['property_name']) && strlen($data['property_name']) < 2) {
-            $errors['property_name'] = ['Property name must be at least 2 characters'];
+        // Validações de formato e tamanho
+        if (isset($data['property_name'])) {
+            if (is_string($data['property_name'])) {
+                if (strlen($data['property_name']) < 2) {
+                    $errors['property_name'] = ['Property name must be at least 2 characters'];
+                }
+                if (strlen($data['property_name']) > 255) {
+                    $errors['property_name'] = ['Property name must not exceed 255 characters'];
+                }
+            } else {
+                $errors['property_name'] = ['Property name must be a string'];
+            }
         }
 
-        if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = ['Invalid email format'];
+        if (isset($data['address'])) {
+            if (is_string($data['address']) && strlen($data['address']) > 255) {
+                $errors['address'] = ['Address must not exceed 255 characters'];
+            } elseif (!is_string($data['address'])) {
+                $errors['address'] = ['Address must be a string'];
+            }
+        }
+
+        if (isset($data['city'])) {
+            if (is_string($data['city']) && strlen($data['city']) > 255) {
+                $errors['city'] = ['City must not exceed 255 characters'];
+            } elseif (!is_string($data['city'])) {
+                $errors['city'] = ['City must be a string'];
+            }
+        }
+
+        if (isset($data['country'])) {
+            if (is_string($data['country']) && strlen($data['country']) > 255) {
+                $errors['country'] = ['Country must not exceed 255 characters'];
+            } elseif (!is_string($data['country'])) {
+                $errors['country'] = ['Country must be a string'];
+            }
+        }
+
+        if (isset($data['phone'])) {
+            if (is_string($data['phone']) && strlen($data['phone']) > 255) {
+                $errors['phone'] = ['Phone must not exceed 255 characters'];
+            } elseif (!is_string($data['phone'])) {
+                $errors['phone'] = ['Phone must be a string'];
+            }
+        }
+
+        if (isset($data['email'])) {
+            if (is_string($data['email'])) {
+                if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                    $errors['email'] = ['Invalid email format'];
+                }
+                if (strlen($data['email']) > 255) {
+                    $errors['email'] = ['Email must not exceed 255 characters'];
+                }
+            } else {
+                $errors['email'] = ['Email must be a string'];
+            }
+        }
+
+        if (isset($data['website'])) {
+            if (is_string($data['website'])) {
+                if (!filter_var($data['website'], FILTER_VALIDATE_URL)) {
+                    $errors['website'] = ['Invalid website URL format'];
+                }
+                if (strlen($data['website']) > 255) {
+                    $errors['website'] = ['Website must not exceed 255 characters'];
+                }
+            } else {
+                $errors['website'] = ['Website must be a string'];
+            }
+        }
+
+        // Validação de quartos se fornecidos
+        if (isset($data['rooms'])) {
+            if (!is_array($data['rooms']) || empty($data['rooms'])) {
+                $errors['rooms'] = ['Rooms must be a non-empty array'];
+            } else {
+                foreach ($data['rooms'] as $index => $room) {
+                    if (empty($room['id'])) {
+                        $errors["rooms.{$index}.id"] = ['Room ID is required'];
+                    }
+
+                    if (empty($room['name'])) {
+                        $errors["rooms.{$index}.name"] = ['Room name is required'];
+                    } elseif (strlen($room['name']) > 255) {
+                        $errors["rooms.{$index}.name"] = ['Room name must not exceed 255 characters'];
+                    }
+
+                    if (empty($room['rates']) || !is_array($room['rates'])) {
+                        $errors["rooms.{$index}.rates"] = ['Room rates must be a non-empty array'];
+                    } else {
+                        foreach ($room['rates'] as $rateIndex => $rate) {
+                            if (empty($rate['id'])) {
+                                $errors["rooms.{$index}.rates.{$rateIndex}.id"] = ['Rate ID is required'];
+                            }
+
+                            if (empty($rate['name'])) {
+                                $errors["rooms.{$index}.rates.{$rateIndex}.name"] = ['Rate name is required'];
+                            } elseif (strlen($rate['name']) > 255) {
+                                $errors["rooms.{$index}.rates.{$rateIndex}.name"] = ['Rate name must not exceed 255 characters'];
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         if (!empty($errors)) {
