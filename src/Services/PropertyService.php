@@ -133,6 +133,7 @@ class PropertyService
      * @return array
      * @throws ApiException
      */
+    #[ApiException('This endpoint is temporarily disabled')]
     public function listRooms($propertyId, array $filters = []): array
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rooms", $filters);
@@ -151,6 +152,7 @@ class PropertyService
      * @return Room
      * @throws ApiException
      */
+    #[ApiException('This endpoint is temporarily disabled')]
     public function getRoom($propertyId, $roomId): Room
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rooms/{$roomId}");
@@ -165,6 +167,7 @@ class PropertyService
      * @return array
      * @throws ApiException
      */
+    #[ApiException('This endpoint is temporarily disabled')]
     public function getRooms($propertyId): array
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rooms");
@@ -187,6 +190,8 @@ class PropertyService
      */
     public function updateRoom($propertyId, $roomId, array $roomData): Room
     {
+        throw new ApiException('This endpoint is temporarily disabled');
+
         $this->validateRoomData($roomData, false);
 
         $response = $this->client->put("/api/pms/properties/{$propertyId}/rooms/{$roomId}", $roomData);
@@ -224,7 +229,7 @@ class PropertyService
 
         $response = $this->client->post("/api/pms/properties/{$propertyId}/rate-plans", $ratePlanData);
 
-        return RatePlan::fromArray($response['data']);
+        return RatePlan::fromArray($response['rate_plan']);
     }
 
     /**
@@ -235,6 +240,7 @@ class PropertyService
      * @return array
      * @throws ApiException
      */
+    #[ApiException('This endpoint is temporarily disabled')]
     public function listRatePlans($propertyId, array $filters = []): array
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rate-plans", $filters);
@@ -253,6 +259,7 @@ class PropertyService
      * @return RatePlan
      * @throws ApiException
      */
+    #[ApiException('This endpoint is temporarily disabled')]
     public function getRatePlan($propertyId, $ratePlanId): RatePlan
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rate-plans/{$ratePlanId}");
@@ -267,6 +274,7 @@ class PropertyService
      * @return array
      * @throws ApiException
      */
+    #[ApiException('This endpoint is temporarily disabled')]
     public function getRatePlans($propertyId): array
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rate-plans");
@@ -287,6 +295,7 @@ class PropertyService
      * @throws ApiException
      * @throws ValidationException
      */
+    #[ApiException('This endpoint is temporarily disabled')]
     public function updateRatePlan($propertyId, $ratePlanId, array $ratePlanData): RatePlan
     {
         $this->validateRatePlanData($ratePlanData);
@@ -304,6 +313,7 @@ class PropertyService
      * @return bool
      * @throws ApiException
      */
+    #[ApiException('This endpoint is temporarily disabled')]
     public function deleteRatePlan($propertyId, $ratePlanId): bool
     {
         $this->client->delete("/api/pms/properties/{$propertyId}/rate-plans/{$ratePlanId}");

@@ -77,7 +77,7 @@ class SyncCommand extends Command
             $this->info("Syncing reservation: {$specificId}");
 
             if (!$isDryRun) {
-                $result = InnochannelReservation::syncWithPms($specificId);
+                $result = Innochannel::syncReservationWithPms($specificId);
                 $this->displaySyncResult('Reservation', $specificId, $result);
             } else {
                 $this->info("Would sync reservation: {$specificId}");
@@ -99,7 +99,7 @@ class SyncCommand extends Command
 
                 foreach ($reservations as $reservation) {
                     try {
-                        $result = InnochannelReservation::syncWithPms($reservation->id);
+                        $result = Innochannel::syncReservationWithPms($reservation->id);
                         $bar->advance();
                     } catch (Exception $e) {
                         $this->error("Failed to sync reservation {$reservation->id}: {$e->getMessage()}");
@@ -126,7 +126,7 @@ class SyncCommand extends Command
             $this->info("Syncing property: {$specificId}");
 
             if (!$isDryRun) {
-                $result = InnochannelProperty::syncWithPms($specificId);
+                $result = Innochannel::syncProperties($specificId);
                 $this->displaySyncResult('Property', $specificId, $result);
             } else {
                 $this->info("Would sync property: {$specificId}");
