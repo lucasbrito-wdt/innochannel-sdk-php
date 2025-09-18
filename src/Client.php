@@ -133,6 +133,52 @@ class Client
     }
 
     /**
+     * Criar uma nova propriedade
+     * 
+     * Cria uma nova propriedade no sistema com os dados fornecidos.
+     * Inclui validação automática dos dados obrigatórios e opcionais.
+     * 
+     * @param array $propertyData Dados da propriedade a ser criada:
+     *                           - name (string, obrigatório): Nome da propriedade
+     *                           - pms_type (string, obrigatório): Tipo do PMS (opera, fidelio, etc.)
+     *                           - pms_credentials (array, obrigatório): Credenciais do PMS
+     *                           - description (string, opcional): Descrição da propriedade
+     *                           - address (string, opcional): Endereço completo
+     *                           - city (string, opcional): Cidade
+     *                           - state (string, opcional): Estado/Província
+     *                           - country (string, opcional): País
+     *                           - postal_code (string, opcional): CEP/Código postal
+     *                           - phone (string, opcional): Telefone
+     *                           - email (string, opcional): Email de contato
+     *                           - website (string, opcional): Website
+     *                           - amenities (array, opcional): Lista de comodidades
+     *                           - policies (array, opcional): Políticas da propriedade
+     * @return \Innochannel\Sdk\Models\Property Objeto Property criado
+     * @throws ValidationException Se os dados obrigatórios estiverem ausentes ou inválidos
+     * @throws ApiException Se houver erro na comunicação com a API
+     * 
+     * @example
+     * $property = $client->createProperty([
+     *     'name' => 'Hotel Paradise',
+     *     'pms_type' => 'opera',
+     *     'pms_credentials' => [
+     *         'host' => 'pms.hotel.com',
+     *         'username' => 'api_user',
+     *         'password' => 'secure_password'
+     *     ],
+     *     'description' => 'Luxury beachfront hotel',
+     *     'address' => '123 Beach Avenue',
+     *     'city' => 'Miami',
+     *     'country' => 'USA',
+     *     'amenities' => ['wifi', 'pool', 'spa']
+     * ]);
+     */
+    public function createProperty(array $propertyData): \Innochannel\Sdk\Models\Property
+    {
+        return $this->properties()->create($propertyData);
+    }
+
+    /**
      * Obter propriedades (método de conveniência)
      * 
      * @param array $filters Filtros opcionais
@@ -167,6 +213,35 @@ class Client
     public function updateProperty(string $id, array $data): \Innochannel\Sdk\Models\Property
     {
         return $this->properties()->update($id, $data);
+    }
+
+    /**
+     * Excluir uma propriedade
+     * 
+     * Remove permanentemente uma propriedade do sistema.
+     * Esta operação não pode ser desfeita e removerá todos os dados
+     * associados à propriedade, incluindo quartos, planos de tarifas,
+     * reservas e configurações.
+     * 
+     * @param int|string $propertyId ID único da propriedade a ser excluída
+     * @return bool True se a propriedade foi excluída com sucesso
+     * @throws ApiException Se a propriedade não for encontrada ou houver erro na API
+     * @throws ValidationException Se o ID da propriedade for inválido
+     * 
+     * @example
+     * // Excluir propriedade por ID numérico
+     * $success = $client->deleteProperty(123);
+     * 
+     * // Excluir propriedade por ID string
+     * $success = $client->deleteProperty('PROP_ABC123');
+     * 
+     * if ($success) {
+     *     echo "Propriedade excluída com sucesso";
+     * }
+     */
+    public function deleteProperty($propertyId): bool
+    {
+        return $this->properties()->delete($propertyId);
     }
 
     /**
