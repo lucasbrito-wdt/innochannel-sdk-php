@@ -485,7 +485,10 @@ class PropertyService
 
         $this->validateAvailability($syncOptions);
 
-        return $this->client->post("/api/pms/availability", $syncOptions);
+        return $this->client->post("/api/pms/availability", [
+            'property_id_in_pms' => $propertyIdInPMS,
+            'rooms' => ()
+        ]);
     }
 
     /**
