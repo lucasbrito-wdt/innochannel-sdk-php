@@ -488,13 +488,13 @@ class PropertyService
         return $this->client->post("/api/pms/availability", $syncOptions);
     }
 
-    public function syncAvailability($propertyIdInPMS, array $syncOptions = []): array
+    public function syncRates($propertyIdInPMS, array $syncOptions = []): array
     {
         $syncOptions['property_id_in_pms'] = $propertyIdInPMS;
 
-        $this->validateAvailability($syncOptions);
+        $this->validateRates($syncOptions);
 
-        return $this->client->post("/api/pms/availability", $syncOptions);
+        return $this->client->post("/api/pms/rates", $syncOptions);
     }
 
     /**
@@ -786,6 +786,26 @@ class PropertyService
      * @throws ValidationException
      */
     private function validateAvailability(array $data): void
+    {
+        $errors = [];
+
+        if (empty($data['property_id_in_pms'])) {
+            $errors['property_id_in_pms'] = ['Property ID in PMS is required'];
+        }
+
+        if (!empty($errors)) {
+            // Criar uma mensagem mais específica baseada nos erros encontrados
+            $errorSummary = [];
+            foreach ($errors as $field => $fieldErrors) {
+                $errorSummary[] = "{$field}: " . implode(', ', $fieldErrors);
+            }
+
+            $detailedMessage = 'Rate plan validation failed. Errors: ' . implode('; ', $errorSummary);
+            throw new ValidationException($detailedMessage, $errors);
+        }
+    }
+
+    private function validateRates(array $data): void
     {
         $errors = [];
 
