@@ -351,35 +351,39 @@ class PropertyService
         $errors = [];
 
         if ($isCreate) {
-            // Campos obrigatórios para criação
-            if (empty($data['property_id_in_pms'])) {
-                $errors['property_id_in_pms'] = ['Property ID in PMS is required'];
-            }
-
-            if (empty($data['property_name'])) {
+            // Campos obrigatórios para criação - aceita tanto 'name' quanto 'property_name'
+            $propertyName = $data['property_name'] ?? $data['name'] ?? null;
+            if (empty($propertyName)) {
                 $errors['property_name'] = ['Property name is required'];
             }
 
-            if (empty($data['address'])) {
-                $errors['address'] = ['Address is required'];
+            // Para compatibilidade com API PMS, verifica property_id_in_pms se fornecido
+            if (isset($data['property_id_in_pms']) && empty($data['property_id_in_pms'])) {
+                $errors['property_id_in_pms'] = ['Property ID in PMS cannot be empty'];
             }
 
-            if (empty($data['city'])) {
-                $errors['city'] = ['City is required'];
+            // Campos obrigatórios apenas se fornecidos (para compatibilidade)
+            if (isset($data['address']) && empty($data['address'])) {
+                $errors['address'] = ['Address cannot be empty'];
             }
 
-            if (empty($data['country'])) {
-                $errors['country'] = ['Country is required'];
+            if (isset($data['city']) && empty($data['city'])) {
+                $errors['city'] = ['City cannot be empty'];
+            }
+
+            if (isset($data['country']) && empty($data['country'])) {
+                $errors['country'] = ['Country cannot be empty'];
             }
         }
 
-        // Validações de formato e tamanho
-        if (isset($data['property_name'])) {
-            if (is_string($data['property_name'])) {
-                if (strlen($data['property_name']) < 2) {
+        // Validações de formato e tamanho - aceita tanto 'name' quanto 'property_name'
+        $propertyName = $data['property_name'] ?? $data['name'] ?? null;
+        if (isset($propertyName)) {
+            if (is_string($propertyName)) {
+                if (strlen($propertyName) < 2) {
                     $errors['property_name'] = ['Property name must be at least 2 characters'];
                 }
-                if (strlen($data['property_name']) > 255) {
+                if (strlen($propertyName) > 255) {
                     $errors['property_name'] = ['Property name must not exceed 255 characters'];
                 }
             } else {
