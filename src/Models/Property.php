@@ -26,7 +26,7 @@ use Innochannel\Sdk\Events\Models\PropertyPmsCredentialsUpdatedEvent;
 class Property
 {
     use HasEvents;
-    private int $id;
+    private string|int $id;
     private string $name;
     private ?string $description;
     private string $pmsType;
@@ -44,7 +44,7 @@ class Property
     private bool $isActive;
     private DateTimeInterface $createdAt;
     private DateTimeInterface $updatedAt;
-    
+
     /**
      * Construtor da classe Property
      * 
@@ -52,7 +52,7 @@ class Property
      */
     public function __construct(array $data = [])
     {
-        $this->id = $data['id'] ?? 0;
+        $this->id = $data['id'] ?? '';
         $this->name = $data['name'] ?? '';
         $this->description = $data['description'] ?? null;
         $this->pmsType = $data['pms_type'] ?? '';
@@ -70,10 +70,10 @@ class Property
         $this->isActive = $data['is_active'] ?? true;
         $this->createdAt = isset($data['created_at']) ? new DateTime($data['created_at']) : new DateTime();
         $this->updatedAt = isset($data['updated_at']) ? new DateTime($data['updated_at']) : new DateTime();
-        
+
         $this->initializeEvents();
     }
-    
+
     /**
      * Criar instância a partir de array
      */
@@ -81,7 +81,7 @@ class Property
     {
         return new self($data);
     }
-    
+
     /**
      * Converter para array
      */
@@ -108,189 +108,189 @@ class Property
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
         ];
     }
-    
+
     // Getters
-    public function getId(): int
+    public function getId(): string|int
     {
         return $this->id;
     }
-    
+
     public function getName(): string
     {
         return $this->name;
     }
-    
+
     public function getDescription(): ?string
     {
         return $this->description;
     }
-    
+
     public function getPmsType(): string
     {
         return $this->pmsType;
     }
-    
+
     public function getPmsCredentials(): array
     {
         return $this->pmsCredentials;
     }
-    
+
     public function getAddress(): ?string
     {
         return $this->address;
     }
-    
+
     public function getCity(): ?string
     {
         return $this->city;
     }
-    
+
     public function getState(): ?string
     {
         return $this->state;
     }
-    
+
     public function getCountry(): ?string
     {
         return $this->country;
     }
-    
+
     public function getPostalCode(): ?string
     {
         return $this->postalCode;
     }
-    
+
     public function getPhone(): ?string
     {
         return $this->phone;
     }
-    
+
     public function getEmail(): ?string
     {
         return $this->email;
     }
-    
+
     public function getWebsite(): ?string
     {
         return $this->website;
     }
-    
+
     public function getAmenities(): array
     {
         return $this->amenities;
     }
-    
+
     public function getPolicies(): array
     {
         return $this->policies;
     }
-    
+
     public function isActive(): bool
     {
         return $this->isActive;
     }
-    
+
     public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
     }
-    
+
     public function getUpdatedAt(): DateTimeInterface
     {
         return $this->updatedAt;
     }
-    
+
     // Setters
     public function setName(string $name): self
     {
         $this->name = $name;
         return $this;
     }
-    
+
     public function setDescription(?string $description): self
     {
         $this->description = $description;
         return $this;
     }
-    
+
     public function setPmsType(string $pmsType): self
     {
         $this->pmsType = $pmsType;
         return $this;
     }
-    
+
     public function setPmsCredentials(array $pmsCredentials): self
     {
         $this->pmsCredentials = $pmsCredentials;
         return $this;
     }
-    
+
     public function setAddress(?string $address): self
     {
         $this->address = $address;
         return $this;
     }
-    
+
     public function setCity(?string $city): self
     {
         $this->city = $city;
         return $this;
     }
-    
+
     public function setState(?string $state): self
     {
         $this->state = $state;
         return $this;
     }
-    
+
     public function setCountry(?string $country): self
     {
         $this->country = $country;
         return $this;
     }
-    
+
     public function setPostalCode(?string $postalCode): self
     {
         $this->postalCode = $postalCode;
         return $this;
     }
-    
+
     public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
         return $this;
     }
-    
+
     public function setEmail(?string $email): self
     {
         $this->email = $email;
         return $this;
     }
-    
+
     public function setWebsite(?string $website): self
     {
         $this->website = $website;
         return $this;
     }
-    
+
     public function setAmenities(array $amenities): self
     {
         $this->amenities = $amenities;
         return $this;
     }
-    
+
     public function setPolicies(array $policies): self
     {
         $this->policies = $policies;
         return $this;
     }
-    
+
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
         return $this;
     }
-    
+
     /**
      * Verificar se tem amenidade específica
      */
@@ -298,7 +298,7 @@ class Property
     {
         return in_array($amenity, $this->amenities);
     }
-    
+
     /**
      * Adicionar amenidade
      */
@@ -307,10 +307,10 @@ class Property
         if (!$this->hasAmenity($amenity)) {
             $this->amenities[] = $amenity;
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Remover amenidade
      */
@@ -319,7 +319,7 @@ class Property
         $this->amenities = array_filter($this->amenities, fn($a) => $a !== $amenity);
         return $this;
     }
-    
+
     /**
      * Obter política específica
      */
@@ -327,7 +327,7 @@ class Property
     {
         return $this->policies[$key] ?? null;
     }
-    
+
     /**
      * Definir política
      */
@@ -336,7 +336,7 @@ class Property
         $this->policies[$key] = $value;
         return $this;
     }
-    
+
     /**
      * Obter endereço completo formatado
      */
@@ -349,7 +349,7 @@ class Property
             $this->postalCode,
             $this->country
         ]);
-        
+
         return implode(', ', $parts);
     }
 }
