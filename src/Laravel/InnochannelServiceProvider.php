@@ -119,6 +119,19 @@ class InnochannelServiceProvider extends ServiceProvider
 
         // Register event listeners
         $this->registerEventListeners();
+
+        // Register exception handler for Innochannel exceptions
+        $this->registerExceptionHandler();
+    }
+
+    /**
+     * Register exception handler for Innochannel SDK exceptions.
+     */
+    protected function registerExceptionHandler(): void
+    {
+        $this->app->singleton(\Illuminate\Contracts\Debug\ExceptionHandler::class, function ($app) {
+            return new \Innochannel\Laravel\Exceptions\Handler($app);
+        });
     }
 
     /**

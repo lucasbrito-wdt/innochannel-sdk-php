@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Innochannel\Laravel\Http\Controllers\PropertyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +23,18 @@ Route::get('/innochannel/health', function () {
     ]);
 })->name('innochannel.health');
 
-// SDK API routes can be added here as needed
-// Example:
-// Route::prefix('innochannel')->group(function () {
-//     Route::get('/properties', [PropertyController::class, 'index']);
-//     Route::get('/bookings', [ReservationController::class, 'index']);
-// });
+// Property management routes with ValidationException handling
+Route::prefix('innochannel')->group(function () {
+    // Property routes
+    Route::prefix('properties')->group(function () {
+        Route::post('/', [PropertyController::class, 'store'])->name('innochannel.properties.store');
+        Route::put('/{propertyId}', [PropertyController::class, 'update'])->name('innochannel.properties.update');
+        
+        // Room routes
+        Route::post('/{propertyId}/rooms', [PropertyController::class, 'createRoom'])->name('innochannel.properties.rooms.store');
+        Route::put('/{propertyId}/rooms/{roomId}', [PropertyController::class, 'updateRoom'])->name('innochannel.properties.rooms.update');
+        
+        // Rate plan routes
+        Route::post('/{propertyId}/rooms/{roomId}/rate-plans', [PropertyController::class, 'createRatePlan'])->name('innochannel.properties.rooms.rate-plans.store');
+    });
+});
