@@ -122,7 +122,7 @@ class PropertyService
 
         $response = $this->client->post("/api/pms/properties/{$propertyId}/rooms", $roomData);
 
-        return Room::fromArray($response['data']);
+        return Room::fromArray($response['room']);
     }
 
     /**
@@ -139,7 +139,7 @@ class PropertyService
 
         return array_map(
             fn($roomData) => Room::fromArray($roomData),
-            $response['data']
+            $response['rooms']
         );
     }
 
