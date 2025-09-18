@@ -68,10 +68,18 @@ class InnochannelServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Publish configuration
-        $this->publishes([
-            __DIR__ . '/config/innochannel.php' => config_path('innochannel.php'),
-        ], 'innochannel-config');
+        // Publish configuration files
+        if (file_exists(__DIR__ . '/config/innochannel.php')) {
+            $this->publishes([
+                __DIR__ . '/config/innochannel.php' => config_path('innochannel.php'),
+            ], 'innochannel-config');
+        }
+
+        if (file_exists(__DIR__ . '/config/innochannel-telescope.php')) {
+            $this->publishes([
+                __DIR__ . '/config/innochannel-telescope.php' => config_path('innochannel-telescope.php'),
+            ], 'innochannel-telescope-config');
+        }
 
         // Publish migrations
         $this->publishes([
@@ -107,6 +115,7 @@ class InnochannelServiceProvider extends ServiceProvider
 
         // Register middleware
         $this->app['router']->aliasMiddleware('innochannel.auth', InnochannelAuth::class);
+        $this->app['router']->aliasMiddleware('innochannel.telescope', \Innochannel\Laravel\Middleware\InnochannelTelescopeMiddleware::class);
 
         // Register commands
         if ($this->app->runningInConsole()) {
@@ -120,8 +129,21 @@ class InnochannelServiceProvider extends ServiceProvider
         // Register event listeners
         $this->registerEventListeners();
 
+        // Register Telescope integration if available
+        $this->registerTelescopeIntegration();
+
         // Register exception handler for Innochannel exceptions
         $this->registerExceptionHandler();
+    }
+
+    /**
+     * Register Telescope integration if available.
+     */
+    protected function registerTelescopeIntegration(): void
+    {
+        if (class_exists(\Laravel\Telescope\TelescopeServiceProvider::class)) {
+            $this->app->register(InnochannelTelescopeServiceProvider::class);
+        }
     }
 
     /**
