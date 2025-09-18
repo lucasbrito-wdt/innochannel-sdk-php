@@ -30,10 +30,47 @@ class PropertyService
     /**
      * Criar uma nova propriedade
      * 
-     * @param array $propertyData Dados da propriedade
-     * @return Property
-     * @throws ApiException
-     * @throws ValidationException
+     * Cria uma nova propriedade no sistema com validação completa dos dados.
+     * Aceita tanto 'name' quanto 'property_name' como nome da propriedade para
+     * compatibilidade com diferentes sistemas PMS.
+     * 
+     * @param array $propertyData Dados da propriedade contendo:
+     *                           - property_name|name (string): Nome da propriedade (obrigatório)
+     *                           - property_id_in_pms (string): ID da propriedade no PMS (opcional)
+     *                           - address (string): Endereço da propriedade (opcional)
+     *                           - city (string): Cidade (opcional)
+     *                           - country (string): País (opcional)
+     *                           - phone (string): Telefone (opcional)
+     *                           - email (string): Email (opcional)
+     *                           - website (string): Website (opcional)
+     *                           - rooms (array): Lista de quartos (opcional)
+     * @return Property Objeto Property criado com todos os dados
+     * @throws ApiException Se houver erro na comunicação com a API
+     * @throws ValidationException Se os dados fornecidos forem inválidos
+     * 
+     * @example
+     * // Criar propriedade básica
+     * $property = $propertyService->create([
+     *     'property_name' => 'Hotel Exemplo',
+     *     'address' => 'Rua das Flores, 123',
+     *     'city' => 'São Paulo',
+     *     'country' => 'Brasil'
+     * ]);
+     * 
+     * // Criar propriedade com quartos
+     * $property = $propertyService->create([
+     *     'name' => 'Pousada Vista Mar',
+     *     'property_id_in_pms' => 'PMS_PROP_001',
+     *     'rooms' => [
+     *         [
+     *             'id' => 'R001',
+     *             'name' => 'Quarto Standard',
+     *             'rates' => [
+     *                 ['id' => 'RATE1', 'name' => 'Tarifa Padrão']
+     *             ]
+     *         ]
+     *     ]
+     * ]);
      */
     public function create(array $propertyData): Property
     {
@@ -47,9 +84,24 @@ class PropertyService
     /**
      * Obter propriedade por ID
      * 
-     * @param int|string $propertyId
-     * @return Property
-     * @throws ApiException
+     * Recupera uma propriedade específica usando seu ID único.
+     * Retorna todos os dados da propriedade incluindo informações
+     * básicas, endereço e configurações.
+     * 
+     * @param int|string $propertyId ID único da propriedade (pode ser numérico ou string)
+     * @return Property Objeto Property com todos os dados da propriedade
+     * @throws ApiException Se a propriedade não for encontrada ou houver erro na API
+     * 
+     * @example
+     * // Obter propriedade por ID numérico
+     * $property = $propertyService->get(123);
+     * 
+     * // Obter propriedade por ID string
+     * $property = $propertyService->get('PROP_ABC123');
+     * 
+     * // Acessar dados da propriedade
+     * echo $property->getName();
+     * echo $property->getAddress();
      */
     public function get($propertyId): Property
     {
@@ -61,9 +113,37 @@ class PropertyService
     /**
      * Listar todas as propriedades
      * 
-     * @param array $filters Filtros opcionais
-     * @return array
-     * @throws ApiException
+     * Recupera uma lista de propriedades com opção de aplicar filtros
+     * para refinar os resultados. Suporta paginação e ordenação.
+     * 
+     * @param array $filters Filtros opcionais para a busca:
+     *                      - city (string): Filtrar por cidade
+     *                      - country (string): Filtrar por país
+     *                      - status (string): Filtrar por status ('active', 'inactive')
+     *                      - name (string): Buscar por nome (busca parcial)
+     *                      - limit (int): Limite de resultados por página
+     *                      - offset (int): Deslocamento para paginação
+     *                      - sort_by (string): Campo para ordenação
+     *                      - sort_order (string): Ordem ('asc', 'desc')
+     * @return array Array de objetos Property
+     * @throws ApiException Se houver erro na comunicação com a API
+     * 
+     * @example
+     * // Listar todas as propriedades
+     * $properties = $propertyService->list();
+     * 
+     * // Listar com filtros
+     * $properties = $propertyService->list([
+     *     'city' => 'São Paulo',
+     *     'status' => 'active',
+     *     'limit' => 10
+     * ]);
+     * 
+     * // Listar com ordenação
+     * $properties = $propertyService->list([
+     *     'sort_by' => 'name',
+     *     'sort_order' => 'asc'
+     * ]);
      */
     public function list(array $filters = []): array
     {
@@ -324,9 +404,42 @@ class PropertyService
     /**
      * Testar conexão PMS
      * 
-     * @param array $connectionData
-     * @return array
-     * @throws ApiException
+     * Testa a conectividade e autenticação com um sistema PMS específico.
+     * Útil para validar credenciais e configurações antes de realizar
+     * operações de sincronização.
+     * 
+     * @param array $connectionData Dados de conexão contendo:
+     *                             - pms_type (string): Tipo do PMS ('opera', 'fidelio', 'mews', etc.)
+     *                             - host (string): Endereço do servidor PMS
+     *                             - username (string): Nome de usuário
+     *                             - password (string): Senha
+     *                             - port (int): Porta de conexão (opcional)
+     *                             - database (string): Nome do banco de dados (opcional)
+     *                             - ssl (bool): Usar SSL/TLS (opcional)
+     *                             - timeout (int): Timeout em segundos (opcional)
+     * @return array Resultado do teste contendo:
+     *               - success (bool): Status da conexão
+     *               - message (string): Mensagem descritiva
+     *               - pms_version (string): Versão do PMS detectada
+     *               - response_time (float): Tempo de resposta em ms
+     *               - features (array): Recursos disponíveis no PMS
+     * @throws ApiException Se houver erro na comunicação com a API
+     * 
+     * @example
+     * // Testar conexão Opera
+     * $result = $propertyService->testPmsConnection([
+     *     'pms_type' => 'opera',
+     *     'host' => '192.168.1.100',
+     *     'username' => 'api_user',
+     *     'password' => 'secure_password',
+     *     'port' => 8080
+     * ]);
+     * 
+     * // Verificar resultado
+     * if ($result['success']) {
+     *     echo "Conexão estabelecida com sucesso!";
+     *     echo "Versão do PMS: " . $result['pms_version'];
+     * }
      */
     public function testPmsConnection(array $connectionData): array
     {
@@ -334,12 +447,96 @@ class PropertyService
     }
 
     /**
+     * Sincronizar disponibilidade com PMS
+     * 
+     * Este método permite sincronizar a disponibilidade de quartos e tarifas
+     * de uma propriedade específica com o sistema PMS.
+     * 
+     * @param int|string $propertyIdInPMS ID da propriedade no sistema PMS
+     * @param array $syncOptions Opções de sincronização
+     *                          - direction (string): Direção da sincronização ('pull', 'push', 'both')
+     *                          - date_from (string): Data inicial no formato Y-m-d
+     *                          - date_to (string): Data final no formato Y-m-d
+     *                          - room_types (array): Lista de tipos de quarto para sincronizar
+     *                          - rate_plans (array): Lista de planos de tarifa para sincronizar
+     * @return array Resultado da sincronização contendo:
+     *               - success (bool): Status da operação
+     *               - synced_records (int): Número de registros sincronizados
+     *               - errors (array): Lista de erros, se houver
+     *               - last_sync (string): Timestamp da última sincronização
+     * @throws ApiException Se houver erro na comunicação com a API
+     * @throws ValidationException Se os dados fornecidos forem inválidos
+     * 
+     * @example
+     * // Sincronizar disponibilidade básica
+     * $result = $propertyService->syncAvailability('PROP123');
+     * 
+     * // Sincronizar com opções específicas
+     * $result = $propertyService->syncAvailability('PROP123', [
+     *     'direction' => 'pull',
+     *     'date_from' => '2024-01-01',
+     *     'date_to' => '2024-01-31',
+     *     'room_types' => ['standard', 'deluxe']
+     * ]);
+     */
+    public function syncAvailability($propertyIdInPMS, array $syncOptions = []): array
+    {
+        $syncOptions['property_id_in_pms'] = $propertyIdInPMS;
+
+        $this->validateAvailability($syncOptions);
+
+        return $this->client->post("/api/pms/availability", $syncOptions);
+    }
+
+    /**
      * Sincronizar com PMS
      * 
-     * @param int|string $propertyId
-     * @param array $syncOptions
-     * @return array
-     * @throws ApiException
+     * Realiza sincronização bidirecional de dados entre o sistema Innochannel
+     * e o PMS da propriedade. Permite sincronizar quartos, planos de tarifa
+     * e disponibilidade de forma seletiva.
+     * 
+     * @param int|string $propertyId ID da propriedade no sistema Innochannel
+     * @param array $syncOptions Opções de sincronização:
+     *                          - direction (string): Direção da sincronização
+     *                            * 'pull': Do PMS para Innochannel (padrão)
+     *                            * 'push': Do Innochannel para PMS
+     *                            * 'both': Sincronização bidirecional
+     *                          - entities (array): Entidades a sincronizar (padrão: ['rooms', 'rate-plans', 'availability'])
+     *                            * 'rooms': Quartos e tipos de quarto
+     *                            * 'rate-plans': Planos de tarifa
+     *                            * 'availability': Disponibilidade e tarifas
+     *                            * 'reservations': Reservas
+     *                          - date_from (string): Data inicial para sincronização (Y-m-d)
+     *                          - date_to (string): Data final para sincronização (Y-m-d)
+     *                          - force_update (bool): Forçar atualização mesmo se não houver mudanças
+     *                          - batch_size (int): Tamanho do lote para processamento
+     * @return array Resultado da sincronização contendo:
+     *               - success (bool): Status geral da operação
+     *               - entities_synced (array): Detalhes por entidade sincronizada
+     *               - total_records (int): Total de registros processados
+     *               - errors (array): Lista de erros encontrados
+     *               - sync_duration (float): Duração da sincronização em segundos
+     *               - last_sync_timestamp (string): Timestamp da sincronização
+     * @throws ApiException Se houver erro na comunicação com a API
+     * 
+     * @example
+     * // Sincronização básica (pull de todas as entidades)
+     * $result = $propertyService->syncWithPms('PROP123');
+     * 
+     * // Sincronização específica de quartos e tarifas
+     * $result = $propertyService->syncWithPms('PROP123', [
+     *     'direction' => 'pull',
+     *     'entities' => ['rooms', 'rate-plans'],
+     *     'date_from' => '2024-01-01',
+     *     'date_to' => '2024-01-31'
+     * ]);
+     * 
+     * // Sincronização bidirecional com força
+     * $result = $propertyService->syncWithPms('PROP123', [
+     *     'direction' => 'both',
+     *     'force_update' => true,
+     *     'batch_size' => 100
+     * ]);
      */
     public function syncWithPms($propertyId, array $syncOptions = []): array
     {
@@ -549,16 +746,46 @@ class PropertyService
     {
         $errors = [];
 
-        if (empty($data['name'])) {
-            $errors['name'] = ['Rate plan name is required'];
+        if (empty($data['property_id_in_pms'])) {
+            $errors['property_id_in_pms'] = ['Property ID in PMS is required'];
         }
 
-        if (empty($data['currency'])) {
-            $errors['currency'] = ['Currency is required'];
+        if (empty($data['room_id'])) {
+            $errors['room_id'] = ['Room ID is required'];
         }
 
-        if (isset($data['currency']) && !preg_match('/^[A-Z]{3}$/', $data['currency'])) {
-            $errors['currency'] = ['Currency must be a valid 3-letter ISO code'];
+        if (empty($data['rate_plan_id'])) {
+            $errors['rate_plan_id'] = ['Rate plan ID is required'];
+        }
+
+        if (empty($data['rate_plan_name'])) {
+            $errors['rate_plan_name'] = ['Rate plan name is required'];
+        }
+
+        if (!empty($errors)) {
+            // Criar uma mensagem mais específica baseada nos erros encontrados
+            $errorSummary = [];
+            foreach ($errors as $field => $fieldErrors) {
+                $errorSummary[] = "{$field}: " . implode(', ', $fieldErrors);
+            }
+
+            $detailedMessage = 'Rate plan validation failed. Errors: ' . implode('; ', $errorSummary);
+            throw new ValidationException($detailedMessage, $errors);
+        }
+    }
+
+    /**
+     * Validar dados da disponibilidade
+     * 
+     * @param array $data
+     * @throws ValidationException
+     */
+    private function validateAvailability(array $data): void
+    {
+        $errors = [];
+
+        if (empty($data['property_id_in_pms'])) {
+            $errors['property_id_in_pms'] = ['Property ID in PMS is required'];
         }
 
         if (!empty($errors)) {
