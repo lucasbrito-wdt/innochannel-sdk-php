@@ -999,6 +999,14 @@ class Client
     }
 
     /**
+     * Synchronize rates with the PMS system
+     */
+    public function syncRates($propertyIdInPMS, array $syncOptions = []): array
+    {
+        return $this->properties()->syncRates($propertyIdInPMS, $syncOptions);
+    }
+
+    /**
      * Sincronizar propriedade com PMS
      * 
      * Realiza sincronização bidirecional de dados entre o sistema Innochannel

@@ -140,7 +140,14 @@ use Illuminate\Support\Facades\Facade;
  *         Retorna: Array com status da conexão e informações do sistema
  *         Exemplo: Innochannel::testConnection()
  * 
+ * @method static array syncRates(string $propertyIdInPMS, array $syncOptions = [])
+ *         Synchronize rates with the PMS system
+ *         Parâmetros:
+ *         - $propertyIdInPMS (string): ID da propriedade no PMS
+ *         - $syncOptions (array): Opções de sincronização
+ * 
  * @see \Innochannel\Client
+ * 
  */
 class Innochannel extends Facade
 {

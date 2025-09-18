@@ -488,6 +488,15 @@ class PropertyService
         return $this->client->post("/api/pms/availability", $syncOptions);
     }
 
+    public function syncAvailability($propertyIdInPMS, array $syncOptions = []): array
+    {
+        $syncOptions['property_id_in_pms'] = $propertyIdInPMS;
+
+        $this->validateAvailability($syncOptions);
+
+        return $this->client->post("/api/pms/availability", $syncOptions);
+    }
+
     /**
      * Sincronizar com PMS
      * 
