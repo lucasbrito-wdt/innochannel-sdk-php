@@ -485,7 +485,14 @@ class PropertyService
         }
 
         if (!empty($errors)) {
-            throw new ValidationException('Property validation failed', $errors);
+            // Criar uma mensagem mais específica baseada nos erros encontrados
+            $errorSummary = [];
+            foreach ($errors as $field => $fieldErrors) {
+                $errorSummary[] = "{$field}: " . implode(', ', $fieldErrors);
+            }
+            
+            $detailedMessage = 'Property validation failed. Errors: ' . implode('; ', $errorSummary);
+            throw new ValidationException($detailedMessage, $errors);
         }
     }
 
@@ -515,7 +522,14 @@ class PropertyService
         }
 
         if (!empty($errors)) {
-            throw new ValidationException('Room validation failed', $errors);
+            // Criar uma mensagem mais específica baseada nos erros encontrados
+            $errorSummary = [];
+            foreach ($errors as $field => $fieldErrors) {
+                $errorSummary[] = "{$field}: " . implode(', ', $fieldErrors);
+            }
+            
+            $detailedMessage = 'Room validation failed. Errors: ' . implode('; ', $errorSummary);
+            throw new ValidationException($detailedMessage, $errors);
         }
     }
 
@@ -542,7 +556,14 @@ class PropertyService
         }
 
         if (!empty($errors)) {
-            throw new ValidationException('Rate plan validation failed', $errors);
+            // Criar uma mensagem mais específica baseada nos erros encontrados
+            $errorSummary = [];
+            foreach ($errors as $field => $fieldErrors) {
+                $errorSummary[] = "{$field}: " . implode(', ', $fieldErrors);
+            }
+            
+            $detailedMessage = 'Rate plan validation failed. Errors: ' . implode('; ', $errorSummary);
+            throw new ValidationException($detailedMessage, $errors);
         }
     }
 }
