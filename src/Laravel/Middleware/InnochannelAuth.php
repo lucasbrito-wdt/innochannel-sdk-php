@@ -62,17 +62,12 @@ class InnochannelAuth
      */
     protected function verifyApiKey(Request $request): bool
     {
-        $apiKey = $request->header('X-API-Key') 
-                 ?? $request->header('Authorization')
-                 ?? $request->query('api_key');
+        $apiKey = $request->header('X-API-Key')
+            ?? $request->header('X-API-Secret')
+            ?? $request->query('api_key');
 
-        // Remove 'Bearer ' prefix if present
-        if (str_starts_with($apiKey, 'Bearer ')) {
-            $apiKey = substr($apiKey, 7);
-        }
+        $configApiSecret = config('innochannel.api_secret');
 
-        $configApiKey = config('innochannel.api_key');
-
-        return $apiKey && $configApiKey && hash_equals($configApiKey, $apiKey);
+        return $apiKey && $configApiSecret && hash_equals($configApiSecret, $apiKey);
     }
 }

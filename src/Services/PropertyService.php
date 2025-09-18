@@ -21,12 +21,12 @@ use Innochannel\Sdk\Exceptions\ValidationException;
 class PropertyService
 {
     private Client $client;
-    
+
     public function __construct(Client $client)
     {
         $this->client = $client;
     }
-    
+
     /**
      * Criar uma nova propriedade
      * 
@@ -38,12 +38,12 @@ class PropertyService
     public function create(array $propertyData): Property
     {
         $this->validatePropertyData($propertyData);
-        
+
         $response = $this->client->post('/api/pms/properties', $propertyData);
-        
+
         return Property::fromArray($response['data']);
     }
-    
+
     /**
      * Obter propriedade por ID
      * 
@@ -54,10 +54,10 @@ class PropertyService
     public function get($propertyId): Property
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}");
-        
+
         return Property::fromArray($response['data']);
     }
-    
+
     /**
      * Listar todas as propriedades
      * 
@@ -68,13 +68,13 @@ class PropertyService
     public function list(array $filters = []): array
     {
         $response = $this->client->get('/api/pms/properties', $filters);
-        
+
         return array_map(
             fn($propertyData) => Property::fromArray($propertyData),
             $response['data']
         );
     }
-    
+
     /**
      * Atualizar propriedade
      * 
@@ -87,12 +87,12 @@ class PropertyService
     public function update($propertyId, array $propertyData): Property
     {
         $this->validatePropertyData($propertyData, false);
-        
+
         $response = $this->client->put("/api/pms/properties/{$propertyId}", $propertyData);
-        
+
         return Property::fromArray($response['data']);
     }
-    
+
     /**
      * Excluir propriedade
      * 
@@ -103,10 +103,10 @@ class PropertyService
     public function delete($propertyId): bool
     {
         $this->client->delete("/api/pms/properties/{$propertyId}");
-        
+
         return true;
     }
-    
+
     /**
      * Criar quarto para uma propriedade
      * 
@@ -119,12 +119,12 @@ class PropertyService
     public function createRoom($propertyId, array $roomData): Room
     {
         $this->validateRoomData($roomData);
-        
+
         $response = $this->client->post("/api/pms/properties/{$propertyId}/rooms", $roomData);
-        
+
         return Room::fromArray($response['data']);
     }
-    
+
     /**
      * Listar quartos de uma propriedade
      * 
@@ -136,13 +136,13 @@ class PropertyService
     public function listRooms($propertyId, array $filters = []): array
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rooms", $filters);
-        
+
         return array_map(
             fn($roomData) => Room::fromArray($roomData),
             $response['data']
         );
     }
-    
+
     /**
      * Obter quarto por ID
      * 
@@ -154,10 +154,10 @@ class PropertyService
     public function getRoom($propertyId, $roomId): Room
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rooms/{$roomId}");
-        
+
         return Room::fromArray($response['data']);
     }
-    
+
     /**
      * Listar quartos de uma propriedade (método legado)
      * 
@@ -168,13 +168,13 @@ class PropertyService
     public function getRooms($propertyId): array
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rooms");
-        
+
         return array_map(
             fn($roomData) => Room::fromArray($roomData),
             $response['data']
         );
     }
-    
+
     /**
      * Atualizar quarto
      * 
@@ -188,12 +188,12 @@ class PropertyService
     public function updateRoom($propertyId, $roomId, array $roomData): Room
     {
         $this->validateRoomData($roomData, false);
-        
+
         $response = $this->client->put("/api/pms/properties/{$propertyId}/rooms/{$roomId}", $roomData);
-        
+
         return Room::fromArray($response['data']);
     }
-    
+
     /**
      * Deletar quarto
      * 
@@ -205,10 +205,10 @@ class PropertyService
     public function deleteRoom($propertyId, $roomId): bool
     {
         $this->client->delete("/api/pms/properties/{$propertyId}/rooms/{$roomId}");
-        
+
         return true;
     }
-    
+
     /**
      * Criar plano de tarifas para uma propriedade
      * 
@@ -221,12 +221,12 @@ class PropertyService
     public function createRatePlan($propertyId, array $ratePlanData): RatePlan
     {
         $this->validateRatePlanData($ratePlanData);
-        
+
         $response = $this->client->post("/api/pms/properties/{$propertyId}/rate-plans", $ratePlanData);
-        
+
         return RatePlan::fromArray($response['data']);
     }
-    
+
     /**
      * Listar planos de tarifas de uma propriedade
      * 
@@ -238,13 +238,13 @@ class PropertyService
     public function listRatePlans($propertyId, array $filters = []): array
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rate-plans", $filters);
-        
+
         return array_map(
             fn($ratePlanData) => RatePlan::fromArray($ratePlanData),
             $response['data']
         );
     }
-    
+
     /**
      * Obter plano de tarifas por ID
      * 
@@ -256,10 +256,10 @@ class PropertyService
     public function getRatePlan($propertyId, $ratePlanId): RatePlan
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rate-plans/{$ratePlanId}");
-        
+
         return RatePlan::fromArray($response['data']);
     }
-    
+
     /**
      * Listar planos de tarifas de uma propriedade (método legado)
      * 
@@ -270,13 +270,13 @@ class PropertyService
     public function getRatePlans($propertyId): array
     {
         $response = $this->client->get("/api/pms/properties/{$propertyId}/rate-plans");
-        
+
         return array_map(
             fn($ratePlanData) => RatePlan::fromArray($ratePlanData),
             $response['data']
         );
     }
-    
+
     /**
      * Atualizar plano de tarifas
      * 
@@ -290,12 +290,12 @@ class PropertyService
     public function updateRatePlan($propertyId, $ratePlanId, array $ratePlanData): RatePlan
     {
         $this->validateRatePlanData($ratePlanData);
-        
+
         $response = $this->client->put("/api/pms/properties/{$propertyId}/rate-plans/{$ratePlanId}", $ratePlanData);
-        
+
         return RatePlan::fromArray($response['data']);
     }
-    
+
     /**
      * Deletar plano de tarifas
      * 
@@ -307,10 +307,10 @@ class PropertyService
     public function deleteRatePlan($propertyId, $ratePlanId): bool
     {
         $this->client->delete("/api/pms/properties/{$propertyId}/rate-plans/{$ratePlanId}");
-        
+
         return true;
     }
-    
+
     /**
      * Testar conexão PMS
      * 
@@ -322,7 +322,7 @@ class PropertyService
     {
         return $this->client->post('/api/pms/test-connection', $connectionData);
     }
-    
+
     /**
      * Sincronizar com PMS
      * 
@@ -335,10 +335,10 @@ class PropertyService
     {
         $syncOptions['direction'] = $syncOptions['direction'] ?? 'pull';
         $syncOptions['entities'] = $syncOptions['entities'] ?? ['rooms', 'rate-plans', 'availability'];
-        
+
         return $this->client->post("/api/pms/properties/{$propertyId}/sync", $syncOptions);
     }
-    
+
     /**
      * Validar dados da propriedade
      * 
@@ -349,34 +349,26 @@ class PropertyService
     private function validatePropertyData(array $data, bool $isCreate = true): void
     {
         $errors = [];
-        
+
         if ($isCreate) {
-            if (empty($data['name'])) {
-                $errors['name'] = ['Property name is required'];
-            }
-            
-            if (empty($data['pms_type'])) {
-                $errors['pms_type'] = ['PMS type is required'];
-            }
-            
-            if (empty($data['pms_credentials'])) {
-                $errors['pms_credentials'] = ['PMS credentials are required'];
+            if (empty($data['property_name'])) {
+                $errors['property_name'] = ['Property name is required'];
             }
         }
-        
-        if (isset($data['name']) && strlen($data['name']) < 2) {
-            $errors['name'] = ['Property name must be at least 2 characters'];
+
+        if (isset($data['property_name']) && strlen($data['property_name']) < 2) {
+            $errors['property_name'] = ['Property name must be at least 2 characters'];
         }
-        
+
         if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = ['Invalid email format'];
         }
-        
+
         if (!empty($errors)) {
             throw new ValidationException('Property validation failed', $errors);
         }
     }
-    
+
     /**
      * Validar dados do quarto
      * 
@@ -387,26 +379,26 @@ class PropertyService
     private function validateRoomData(array $data, bool $isCreate = true): void
     {
         $errors = [];
-        
+
         if ($isCreate) {
             if (empty($data['name'])) {
                 $errors['name'] = ['Room name is required'];
             }
-            
+
             if (empty($data['room_type'])) {
                 $errors['room_type'] = ['Room type is required'];
             }
         }
-        
+
         if (isset($data['max_occupancy']) && (!is_int($data['max_occupancy']) || $data['max_occupancy'] < 1)) {
             $errors['max_occupancy'] = ['Max occupancy must be a positive integer'];
         }
-        
+
         if (!empty($errors)) {
             throw new ValidationException('Room validation failed', $errors);
         }
     }
-    
+
     /**
      * Validar dados do plano de tarifas
      * 
@@ -416,19 +408,19 @@ class PropertyService
     private function validateRatePlanData(array $data): void
     {
         $errors = [];
-        
+
         if (empty($data['name'])) {
             $errors['name'] = ['Rate plan name is required'];
         }
-        
+
         if (empty($data['currency'])) {
             $errors['currency'] = ['Currency is required'];
         }
-        
+
         if (isset($data['currency']) && !preg_match('/^[A-Z]{3}$/', $data['currency'])) {
             $errors['currency'] = ['Currency must be a valid 3-letter ISO code'];
         }
-        
+
         if (!empty($errors)) {
             throw new ValidationException('Rate plan validation failed', $errors);
         }
