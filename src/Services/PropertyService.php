@@ -508,17 +508,13 @@ class PropertyService
         $errors = [];
 
         if ($isCreate) {
-            if (empty($data['name'])) {
-                $errors['name'] = ['Room name is required'];
+            if (empty($data['room_name'])) {
+                $errors['room_name'] = ['Room Name is required'];
             }
 
-            if (empty($data['room_type'])) {
-                $errors['room_type'] = ['Room type is required'];
+            if (empty($data['pms_room_id'])) {
+                $errors['pms_room_id'] = ['Room Id is required'];
             }
-        }
-
-        if (isset($data['max_occupancy']) && (!is_int($data['max_occupancy']) || $data['max_occupancy'] < 1)) {
-            $errors['max_occupancy'] = ['Max occupancy must be a positive integer'];
         }
 
         if (!empty($errors)) {
