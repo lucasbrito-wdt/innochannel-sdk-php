@@ -41,7 +41,7 @@ class PropertyService
 
         $response = $this->client->post('/api/pms/properties', $propertyData);
 
-        return Property::fromArray($response['data']);
+        return Property::fromArray($response['property']);
     }
 
     /**
@@ -490,7 +490,7 @@ class PropertyService
             foreach ($errors as $field => $fieldErrors) {
                 $errorSummary[] = "{$field}: " . implode(', ', $fieldErrors);
             }
-            
+
             $detailedMessage = 'Property validation failed. Errors: ' . implode('; ', $errorSummary);
             throw new ValidationException($detailedMessage, $errors);
         }
@@ -527,7 +527,7 @@ class PropertyService
             foreach ($errors as $field => $fieldErrors) {
                 $errorSummary[] = "{$field}: " . implode(', ', $fieldErrors);
             }
-            
+
             $detailedMessage = 'Room validation failed. Errors: ' . implode('; ', $errorSummary);
             throw new ValidationException($detailedMessage, $errors);
         }
@@ -561,7 +561,7 @@ class PropertyService
             foreach ($errors as $field => $fieldErrors) {
                 $errorSummary[] = "{$field}: " . implode(', ', $fieldErrors);
             }
-            
+
             $detailedMessage = 'Rate plan validation failed. Errors: ' . implode('; ', $errorSummary);
             throw new ValidationException($detailedMessage, $errors);
         }
