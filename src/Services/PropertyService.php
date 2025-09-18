@@ -746,10 +746,6 @@ class PropertyService
     {
         $errors = [];
 
-        if (empty($data['property_id_in_pms'])) {
-            $errors['property_id_in_pms'] = ['Property ID in PMS is required'];
-        }
-
         if (empty($data['room_id'])) {
             $errors['room_id'] = ['Room ID is required'];
         }
