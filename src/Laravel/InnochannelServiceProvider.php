@@ -130,7 +130,7 @@ class InnochannelServiceProvider extends ServiceProvider
         $this->registerEventListeners();
 
         // Register Telescope integration if available
-        $this->registerTelescopeIntegration();
+        //$this->registerTelescopeIntegration();
 
         // Register exception handler for Innochannel exceptions
         $this->registerExceptionHandler();
