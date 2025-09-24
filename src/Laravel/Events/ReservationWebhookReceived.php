@@ -33,7 +33,7 @@ class ReservationWebhookReceived
      */
     public function getReservationId(): ?string
     {
-        return $this->payload['data']['id'] ?? null;
+        return $this->payload['reservation_id'] ?? null;
     }
 
     /**
@@ -49,7 +49,7 @@ class ReservationWebhookReceived
      */
     public function getReservationData(): array
     {
-        return $this->payload['data'] ?? [];
+        return $this->payload ?? [];
     }
 
     /**

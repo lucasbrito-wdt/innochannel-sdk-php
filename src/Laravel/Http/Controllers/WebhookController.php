@@ -25,7 +25,7 @@ class WebhookController extends Controller
 
             Log::info('Reservation webhook received', [
                 'event_type' => $payload['event_type'] ?? 'unknown',
-                'reservation_id' => $payload['data']['id'] ?? null,
+                'reservation_id' => $payload['reservation_id'] ?? null,
                 'timestamp' => now(),
             ]);
 
