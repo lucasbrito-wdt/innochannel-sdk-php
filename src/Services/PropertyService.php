@@ -160,18 +160,19 @@ class PropertyService
      * 
      * @param int|string $propertyId
      * @param array $propertyData
-     * @return Property
+     * @return array
      * @throws ApiException
      * @throws ValidationException
      */
-    public function update($propertyId, array $propertyData): Property
+    public function update($propertyId, array $propertyData)
     {
         $this->validatePropertyData($propertyData, false);
 
         $response = $this->client->put("/api/pms/properties/{$propertyId}", $propertyData);
 
-        return Property::fromArray($response['data']);
+        return $response;
     }
+
 
     /**
      * Excluir propriedade
