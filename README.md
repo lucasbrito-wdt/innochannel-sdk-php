@@ -1,5 +1,10 @@
 # Innochannel Laravel SDK
 
+[![Latest Version](https://img.shields.io/github/v/release/lucasbrito-wdt/innochannel-sdk-php?label=version)](https://github.com/lucasbrito-wdt/innochannel-sdk-php/releases)
+[![PHP Version](https://img.shields.io/packagist/php-v/lucasbrito-wdt/innochannel-sdk)](https://packagist.org/packages/lucasbrito-wdt/innochannel-sdk)
+[![License](https://img.shields.io/github/license/lucasbrito-wdt/innochannel-sdk-php)](LICENSE)
+[![Total Downloads](https://img.shields.io/packagist/dt/lucasbrito-wdt/innochannel-sdk)](https://packagist.org/packages/lucasbrito-wdt/innochannel-sdk)
+
 A comprehensive Laravel package for integrating with the Innochannel API, providing seamless connectivity between your Laravel application and the Innochannel platform for property management, reservation synchronization, and inventory management.
 
 ## Features
@@ -127,7 +132,7 @@ class ReservationController extends Controller
     public function createReservation(Request $request)
     {
         $reservation = $this->innochannel->createReservation($request->validated());
-        
+
         return response()->json($reservation);
     }
 }
@@ -312,7 +317,7 @@ try {
 } catch (ApiException $e) {
     echo "Erro da API: " . $e->getMessage() . "\n";
     echo "Código HTTP: " . $e->getCode() . "\n";
-    
+
     if ($e->isServerError()) {
         echo "Erro do servidor - tente novamente mais tarde\n";
     }
@@ -392,12 +397,27 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 - 📚 Documentação: <https://docs.innotel.com.br>
 - 🐛 Issues: <https://github.com/innotel/channel-manager-sdk-php/issues>
 
+## 📦 Versionamento
+
+Este projeto segue o [Semantic Versioning](https://semver.org/lang/pt-BR/).
+
+Para ver o histórico completo de mudanças, consulte o [CHANGELOG.md](CHANGELOG.md).
+
+### Versão Atual: v1.0.0
+
+Para criar uma nova versão, consulte o guia em [RELEASE.md](RELEASE.md).
+
 ## 📈 Changelog
 
-### v1.0.0
+Veja o histórico completo de mudanças em [CHANGELOG.md](CHANGELOG.md).
 
-- Lançamento inicial
-- Suporte completo à API do Channel Manager
+### v1.0.0 - 2025-11-26
+
+- ✨ Lançamento inicial
+- 🚀 Suporte completo à API do Innochannel
+- 🔧 Sistema de webhooks e eventos
+- 📊 Integração com Laravel
+- 🐛 Correções de bugs críticos
 - Gerenciamento de propriedades, quartos e tarifas
 - Controle de inventário e reservas
 - Tratamento robusto de erros
