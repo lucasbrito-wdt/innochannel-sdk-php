@@ -39,7 +39,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Sanitização de logs para remover dados sensíveis
 - Validação de entrada em todos os métodos públicos
 
-## [Unreleased]
+## [1.0.1] - 2025-11-26
 
 ### Corrigido
 
@@ -48,6 +48,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Implementação correta do cálculo de duração de requisições HTTP usando `spl_object_hash()`
 - Adicionado tratamento de exceções nos métodos `recordEntry()` e `recordTelescopeEntry()` para prevenir falhas na aplicação quando o Telescope falha ao registrar entradas
 - Adicionado armazenamento de tempos de início de requisições no `InnochannelHttpWatcher` para cálculo preciso de duração
+
+## [Unreleased]
 
 ### Planejado
 
