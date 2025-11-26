@@ -1297,26 +1297,10 @@ class Client
 
                 throw new ApiException('HTTP request failed: ' . $e->getMessage(), 0, $e);
             } catch (\Exception $e) {
-                $attempt++;
-
-                // Check if we should retry for other types of exceptions
-                if ($attempt < $maxAttempts) {
-                    $this->logger->warning('Request failed, retrying', [
-                        'method' => $method,
-                        'endpoint' => $endpoint,
-                        'attempt' => $attempt,
-                        'error' => $e->getMessage(),
-                        'retry_delay' => $this->retryDelay
-                    ]);
-
-                    // Wait before retrying
-                    usleep($this->retryDelay * 1000); // Convert to microseconds
-                    continue;
-                }
-
                 $this->logger->error('HTTP request failed', [
                     'method' => $method,
                     'endpoint' => $endpoint,
+                    'attempt' => $attempt + 1,
                     'error' => $e->getMessage()
                 ]);
 
