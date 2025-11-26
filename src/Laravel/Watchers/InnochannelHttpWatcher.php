@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Event;
 class InnochannelHttpWatcher extends Watcher
 {
     /**
+     * Store request start times
+     *
+     * @var array
+     */
+    protected static $requestStartTimes = [];
+
+    /**
      * Register the watcher.
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
@@ -35,6 +42,10 @@ class InnochannelHttpWatcher extends Watcher
         if (!$this->shouldRecord($event)) {
             return;
         }
+
+        // Armazenar tempo de início da requisição
+        $requestKey = $this->getRequestKey($event->request);
+        static::$requestStartTimes[$requestKey] = microtime(true);
 
         $this->recordEntry([
             'type' => 'innochannel_http_client',
@@ -63,6 +74,8 @@ class InnochannelHttpWatcher extends Watcher
             return;
         }
 
+        $duration = $this->calculateDuration($event);
+
         $this->recordEntry([
             'type' => 'innochannel_http_client',
             'family_hash' => $this->familyHash($event->request),
@@ -75,7 +88,7 @@ class InnochannelHttpWatcher extends Watcher
                 'response_headers' => $this->formatHeaders($event->response->headers()),
                 'response_body' => $this->formatResponseBody($event->response->body()),
                 'response_size' => strlen($event->response->body()),
-                'duration_ms' => $this->calculateDuration($event),
+                'duration' => $duration,
                 'timestamp' => now()->toISOString(),
                 'status' => 'completed',
             ],
@@ -268,6 +281,17 @@ class InnochannelHttpWatcher extends Watcher
     }
 
     /**
+     * Get unique key for request.
+     *
+     * @param  \Illuminate\Http\Client\Request  $request
+     * @return string
+     */
+    protected function getRequestKey($request): string
+    {
+        return spl_object_hash($request);
+    }
+
+    /**
      * Calculate request duration.
      *
      * @param  \Illuminate\Http\Client\Events\ResponseReceived  $event
@@ -275,8 +299,15 @@ class InnochannelHttpWatcher extends Watcher
      */
     protected function calculateDuration($event): float
     {
-        // Esta é uma implementação básica
-        // Em uma implementação real, você precisaria capturar o tempo de início
+        $requestKey = $this->getRequestKey($event->request);
+        
+        if (isset(static::$requestStartTimes[$requestKey])) {
+            $duration = (microtime(true) - static::$requestStartTimes[$requestKey]) * 1000;
+            unset(static::$requestStartTimes[$requestKey]);
+            return round($duration, 2);
+        }
+        
+        // Se não temos o tempo de início, retornar 0
         return 0.0;
     }
 
@@ -288,8 +319,17 @@ class InnochannelHttpWatcher extends Watcher
      */
     protected function recordEntry(array $entry): void
     {
-        Event::dispatch('telescope.entry', [
-            IncomingEntry::make($entry)
-        ]);
+        try {
+            Event::dispatch('telescope.entry', [
+                IncomingEntry::make($entry)
+            ]);
+        } catch (\Throwable $e) {
+            // Silenciosamente ignorar erros de gravação do Telescope
+            // para não quebrar a aplicação
+            \Log::warning('Failed to record Telescope entry', [
+                'error' => $e->getMessage(),
+                'entry_type' => $entry['type'] ?? 'unknown'
+            ]);
+        }
     }
 }

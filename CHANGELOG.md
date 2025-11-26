@@ -41,6 +41,14 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Corrigido
+
+- Correção do erro "Undefined array key 'duration'" no InnochannelHttpWatcher
+- Padronização da chave de duração de 'duration_ms' para 'duration' em todos os registros do Telescope
+- Implementação correta do cálculo de duração de requisições HTTP usando `spl_object_hash()`
+- Adicionado tratamento de exceções nos métodos `recordEntry()` e `recordTelescopeEntry()` para prevenir falhas na aplicação quando o Telescope falha ao registrar entradas
+- Adicionado armazenamento de tempos de início de requisições no `InnochannelHttpWatcher` para cálculo preciso de duração
+
 ### Planejado
 
 - Suporte para mais tipos de PMS

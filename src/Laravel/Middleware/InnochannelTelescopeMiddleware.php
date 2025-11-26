@@ -91,7 +91,7 @@ class InnochannelTelescopeMiddleware
                 'status_code' => $response->getStatusCode(),
                 'headers' => $this->formatHeaders($response->headers->all()),
                 'response_size' => strlen($response->getContent()),
-                'duration_ms' => round($duration, 2),
+                'duration' => round($duration, 2),
                 'timestamp' => now()->toISOString(),
             ],
             'tags' => ['innochannel-response', 'http-outgoing']
@@ -104,7 +104,7 @@ class InnochannelTelescopeMiddleware
             'method' => $request->method(),
             'uri' => $request->getRequestUri(),
             'status' => $response->getStatusCode(),
-            'duration_ms' => round($duration, 2),
+            'duration' => round($duration, 2),
         ]);
     }
 
@@ -172,9 +172,18 @@ class InnochannelTelescopeMiddleware
     protected function recordTelescopeEntry(array $entry): void
     {
         if (class_exists(Telescope::class)) {
-            Telescope::recordEntry(
-                IncomingEntry::make($entry)
-            );
+            try {
+                Telescope::recordEntry(
+                    IncomingEntry::make($entry)
+                );
+            } catch (\Throwable $e) {
+                // Silenciosamente ignorar erros de gravação do Telescope
+                // para não quebrar a aplicação
+                Log::warning('Failed to record Telescope entry', [
+                    'error' => $e->getMessage(),
+                    'entry_type' => $entry['type'] ?? 'unknown'
+                ]);
+            }
         }
     }
 }
